@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  resources :dosis
+  resources :ordenes_fumigacion
+  resources :productos
+  resources :lotes
   resources :estancias
   devise_for :users,
              path: '',
