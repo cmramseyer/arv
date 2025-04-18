@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_18_193044) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_18_194623) do
+  create_table "estancias", force: :cascade do |t|
+    t.string "nombre"
+    t.string "contacto"
+    t.string "telefono"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "jwt_denylists", force: :cascade do |t|
     t.string "jti"
     t.datetime "exp"
