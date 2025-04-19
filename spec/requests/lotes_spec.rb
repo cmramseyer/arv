@@ -13,24 +13,22 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/lotes", type: :request do
-  # This should return the minimal set of attributes required to create a valid
-  # Lote. As you add validations to Lote, be sure to
-  # adjust the attributes here as well.
+
+  let(:user) { create(:user) }
+  let(:file_png) { fixture_file_upload('sample_file.png', 'image/png') }
+  let(:file_jpg) { fixture_file_upload('sample_file.jpg', 'image/jpg') }
+
+  let(:estancia) { create(:estancia) }
+
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    { estancia_id: estancia.id, nombre: '8', adjuntos: [file_png]}
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {nombre: nil}
   }
 
-  # This should return the minimal set of values that should be in the headers
-  # in order to pass any filters (e.g. authentication) defined in
-  # LotesController, or in your router and rack
-  # middleware. Be sure to keep this updated too.
-  let(:valid_headers) {
-    {}
-  }
+  let(:valid_headers) { authenticated_header(user) }
 
   describe "GET /index" do
     it "renders a successful response" do
@@ -43,7 +41,7 @@ RSpec.describe "/lotes", type: :request do
   describe "GET /show" do
     it "renders a successful response" do
       lote = Lote.create! valid_attributes
-      get lote_url(lote), as: :json
+      get lote_url(lote), headers: valid_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -53,8 +51,14 @@ RSpec.describe "/lotes", type: :request do
       it "creates a new Lote" do
         expect {
           post lotes_url,
-               params: { lote: valid_attributes }, headers: valid_headers, as: :json
+               params: { lote: valid_attributes }, headers: valid_headers
         }.to change(Lote, :count).by(1)
+      end
+
+      it "adjunta la imagen" do
+        post lotes_url,
+             params: { lote: valid_attributes }, headers: valid_headers
+        expect(Lote.last.adjuntos.count).to eq(1)
       end
 
       it "renders a JSON response with the new lote" do
@@ -69,13 +73,13 @@ RSpec.describe "/lotes", type: :request do
       it "does not create a new Lote" do
         expect {
           post lotes_url,
-               params: { lote: invalid_attributes }, as: :json
+               params: { lote: invalid_attributes }
         }.to change(Lote, :count).by(0)
       end
 
       it "renders a JSON response with errors for the new lote" do
         post lotes_url,
-             params: { lote: invalid_attributes }, headers: valid_headers, as: :json
+             params: { lote: invalid_attributes }, headers: valid_headers
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
@@ -85,21 +89,22 @@ RSpec.describe "/lotes", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { nombre: '9', adjuntos: [file_jpg] }
       }
 
       it "updates the requested lote" do
         lote = Lote.create! valid_attributes
         patch lote_url(lote),
-              params: { lote: new_attributes }, headers: valid_headers, as: :json
+              params: { lote: new_attributes }, headers: valid_headers
         lote.reload
-        skip("Add assertions for updated state")
+        expect(Lote.last.nombre).to eq('9')
+        expect(Lote.last.adjuntos.count).to eq(2)
       end
 
       it "renders a JSON response with the lote" do
         lote = Lote.create! valid_attributes
         patch lote_url(lote),
-              params: { lote: new_attributes }, headers: valid_headers, as: :json
+              params: { lote: new_attributes }, headers: valid_headers
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
@@ -109,7 +114,7 @@ RSpec.describe "/lotes", type: :request do
       it "renders a JSON response with errors for the lote" do
         lote = Lote.create! valid_attributes
         patch lote_url(lote),
-              params: { lote: invalid_attributes }, headers: valid_headers, as: :json
+              params: { lote: invalid_attributes }, headers: valid_headers
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
