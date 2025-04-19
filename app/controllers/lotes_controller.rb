@@ -26,7 +26,11 @@ class LotesController < ApplicationController
 
   # PATCH/PUT /lotes/1
   def update
-    if @lote.update(lote_params)
+    if params[:lote][:adjuntos].present?
+      @lote.adjuntos.attach(params[:lote][:adjuntos])
+    end
+  
+    if @lote.update(lote_params.except(:adjuntos))
       render json: @lote
     else
       render json: @lote.errors, status: :unprocessable_entity
@@ -46,6 +50,6 @@ class LotesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def lote_params
-      params.expect(lote: [ :nombre, :lat, :long, :link_mapa, :hectareas, :estancia_id ])
+      params.require(:lote).permit(:nombre, :lat, :long, :link_mapa, :hectareas, :estancia_id, adjuntos: [])
     end
 end

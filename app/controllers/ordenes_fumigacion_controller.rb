@@ -58,15 +58,17 @@ class OrdenesFumigacionController < ApplicationController
       pdf.text "Estancia: #{orden.lote.estancia.nombre}"
       pdf.text "Lote: #{orden.lote.nombre}"
       pdf.text "Dosis:"
-      debugger
       orden.dosis.each_with_index do |dosi, idx|
         pdf.text "#{idx + 1} - #{dosi.producto.nombre}, #{dosi.cantidad}#{dosi.producto.unidad_medida}"
       end
-      #orden.lote.adjuntos.where(tipo_adjunto: 'mapa').each do |adjunto|
-      #  if adjunto.file.content_type&.start_with?('image')
-      #    pdf.image StringIO.new(adjunto.file.download), fit: [500, 300]
-      #  end
-      #end
+      if params[:incluir_mapas].present?
+        orden.lote.adjuntos.each do |adjunto|
+          if adjunto.content_type&.start_with?('image')
+            pdf.image StringIO.new(adjunto.download), fit: [500, 300]
+          end
+        end
+      end
+      pdf
     end
 
     #system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
