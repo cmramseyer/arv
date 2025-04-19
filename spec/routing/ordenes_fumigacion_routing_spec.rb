@@ -10,6 +10,9 @@ RSpec.describe OrdenesFumigacionController, type: :routing do
       expect(get: "/ordenes_fumigacion/1").to route_to("ordenes_fumigacion#show", id: "1")
     end
 
+    it "routes to #pdf" do
+      expect(get: "/ordenes_fumigacion/1/pdf").to route_to("ordenes_fumigacion#pdf", id: "1")
+    end
 
     it "routes to #create" do
       expect(post: "/ordenes_fumigacion").to route_to("ordenes_fumigacion#create")
@@ -21,6 +24,10 @@ RSpec.describe OrdenesFumigacionController, type: :routing do
 
     it "routes to #update via PATCH" do
       expect(patch: "/ordenes_fumigacion/1").to route_to("ordenes_fumigacion#update", id: "1")
+    end
+
+    it "routes to #terminar via PATCH" do
+      expect(patch: "/ordenes_fumigacion/1/terminar").to route_to("ordenes_fumigacion#terminar", id: "1")
     end
 
     it "routes to #destroy" do
