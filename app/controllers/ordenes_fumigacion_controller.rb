@@ -46,6 +46,6 @@ class OrdenesFumigacionController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
-      params.expect(orden_fumigacion: [ :lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [:producto_id, :cantidad] ])
+      params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [:producto_id, :cantidad])
     end
 end

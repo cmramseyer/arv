@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe OrdenFumigacionsController, type: :routing do
+RSpec.describe OrdenesFumigacionController, type: :routing do
   describe "routing" do
     it "routes to #index" do
       expect(get: "/ordenes_fumigacion").to route_to("ordenes_fumigacion#index")
