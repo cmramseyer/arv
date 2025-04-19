@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   resources :dosis
-  resources :ordenes_fumigacion
+  resources :ordenes_fumigacion do
+    member do
+      patch :terminar
+    end
+  end
   resources :productos
   resources :lotes
   resources :estancias

@@ -15,7 +15,7 @@ FactoryBot.define do
       estado_orden { 'activa' }
     end
 
-    trait(:finalizada) do
+    trait(:terminada) do
       estado_orden { 'terminada' }
       info_trabajo { Faker::Lorem.words(number: 20).join(" ") }
       fecha_trabajo { Date.today }

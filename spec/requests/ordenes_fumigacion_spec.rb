@@ -18,6 +18,10 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     { creado_por: "carlos" }
   }
 
+  let(:atributos_terminada) {
+    { info_trabajo: "info", maquinista: "juan", fecha_trabajo: Date.today }
+  }
+
   let(:invalid_attributes) {
     { creado_por: nil }
   }
@@ -84,7 +88,6 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
   describe "PATCH /update" do
     context "with valid parameters" do
-      
 
       it "updates the requested orden_fumigacion" do
         orden_fumigacion = OrdenFumigacion.create! valid_attributes
@@ -100,6 +103,52 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including("application/json"))
+      end
+    end
+
+    context "with invalid parameters" do
+      it "renders a JSON response with errors for the orden_fumigacion" do
+        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        patch orden_fumigacion_url(orden_fumigacion),
+              params: { orden_fumigacion: invalid_attributes }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.content_type).to match(a_string_including("application/json"))
+      end
+    end
+  end
+
+  describe "PATCH /terminar" do
+    context "with valid parameters" do
+
+      it "termina orden_fumigacion" do
+        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        patch terminar_orden_fumigacion_url(orden_fumigacion),
+              params: { orden_fumigacion: atributos_terminada }, headers: valid_headers, as: :json
+        orden_fumigacion.reload
+        expect(orden_fumigacion.maquinista).to eq("juan")
+        expect(orden_fumigacion.info_trabajo).to eq("info")
+        expect(orden_fumigacion.fecha_trabajo).to eq(Date.today)
+        expect(orden_fumigacion.estado_orden).to eq("terminada")
+      end
+
+      it "renders a JSON response with the orden_fumigacion" do
+        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        patch terminar_orden_fumigacion_url(orden_fumigacion),
+              params: { orden_fumigacion: atributos_terminada }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to match(a_string_including("application/json"))
+      end
+    end
+
+    context "con una orden ya terminada" do
+
+      it "renders a JSON response with error" do
+        orden_fumigacion = create(:orden_fumigacion, :terminada)
+        patch terminar_orden_fumigacion_url(orden_fumigacion),
+              params: { orden_fumigacion: atributos_terminada }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.content_type).to match(a_string_including("application/json"))
+        expect(json_response["error"]).to eq("La orden ya está terminada")
       end
     end
 

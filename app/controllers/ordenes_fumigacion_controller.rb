@@ -1,5 +1,5 @@
 class OrdenesFumigacionController < ApplicationController
-  before_action :set_orden_fumigacion, only: %i[ show update destroy ]
+  before_action :set_orden_fumigacion, only: %i[ show update terminar destroy ]
 
   # GET /ordenes_fumigacion
   def index
@@ -33,6 +33,16 @@ class OrdenesFumigacionController < ApplicationController
     end
   end
 
+  def terminar
+    if @orden_fumigacion.terminada?
+      render json: {error: "La orden ya está terminada"}, status: :unprocessable_entity
+    elsif @orden_fumigacion.update(terminar_orden_fumigacion_params.merge(estado_orden: 'terminada'))
+      render json: @orden_fumigacion
+    else
+      render json: @orden_fumigacion.errors, status: :unprocessable_entity
+    end
+  end
+
   # DELETE /ordenes_fumigacion/1
   def destroy
     @orden_fumigacion.destroy!
@@ -47,5 +57,9 @@ class OrdenesFumigacionController < ApplicationController
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
       params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [:producto_id, :cantidad])
+    end
+
+    def terminar_orden_fumigacion_params
+      params.require(:orden_fumigacion).permit(:info_trabajo, :fecha_trabajo, :maquinista)
     end
 end
