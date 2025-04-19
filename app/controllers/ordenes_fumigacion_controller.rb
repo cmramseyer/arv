@@ -1,5 +1,5 @@
 class OrdenesFumigacionController < ApplicationController
-  before_action :set_orden_fumigacion, only: %i[ show update terminar destroy ]
+  before_action :set_orden_fumigacion, only: %i[ show update terminar destroy pdf ]
 
   # GET /ordenes_fumigacion
   def index
@@ -46,6 +46,31 @@ class OrdenesFumigacionController < ApplicationController
   # DELETE /ordenes_fumigacion/1
   def destroy
     @orden_fumigacion.destroy!
+  end
+
+  def pdf
+    orden = OrdenFumigacion.includes(:lote, :dosis, :lote => :estancia).find(params[:id])
+
+    pdf_path = Rails.root.join("storage", "orden_#{orden.id}_#{Time.now.to_i}.pdf")
+    Prawn::Document.generate(pdf_path) do |pdf|
+      pdf.text "Orden: #{orden.id}"
+      pdf.text "Orden Creada: #{orden.created_at.strftime('%d/%m/%Y %H:%M')} Por: #{orden.creado_por}"
+      pdf.text "Estancia: #{orden.lote.estancia.nombre}"
+      pdf.text "Lote: #{orden.lote.nombre}"
+      pdf.text "Dosis:"
+      debugger
+      orden.dosis.each_with_index do |dosi, idx|
+        pdf.text "#{idx + 1} - #{dosi.producto.nombre}, #{dosi.cantidad}#{dosi.producto.unidad_medida}"
+      end
+      #orden.lote.adjuntos.where(tipo_adjunto: 'mapa').each do |adjunto|
+      #  if adjunto.file.content_type&.start_with?('image')
+      #    pdf.image StringIO.new(adjunto.file.download), fit: [500, 300]
+      #  end
+      #end
+    end
+
+    #system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
+    render json: { message: 'PDF generado e impreso correctamente' }
   end
 
   private

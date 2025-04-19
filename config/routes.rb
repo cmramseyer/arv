@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resources :ordenes_fumigacion do
     member do
       patch :terminar
+      get :pdf
     end
   end
   resources :productos
