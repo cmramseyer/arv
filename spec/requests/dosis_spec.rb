@@ -1,24 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe "/dosis", type: :request do
-  # This should return the minimal set of attributes required to create a valid
-  # Dosis. As you add validations to Dosis, be sure to
-  # adjust the attributes here as well.
+  let(:user) { create(:user) }
+
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    orden = create(:orden_fumigacion)
+    build(:dosis, orden_fumigacion: orden).attributes
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    { cantidad: 0 }
   }
 
-  # This should return the minimal set of values that should be in the headers
-  # in order to pass any filters (e.g. authentication) defined in
-  # DosisController, or in your router and rack
-  # middleware. Be sure to keep this updated too.
-  let(:valid_headers) {
-    {}
-  }
+  let(:valid_headers) { authenticated_header(user) }
 
   describe "GET /index" do
     it "renders a successful response" do
@@ -31,7 +25,7 @@ RSpec.describe "/dosis", type: :request do
   describe "GET /show" do
     it "renders a successful response" do
       dosis = Dosis.create! valid_attributes
-      get dosis_url(dosis), as: :json
+      get dosis_url(dosis), headers: valid_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -73,7 +67,7 @@ RSpec.describe "/dosis", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { cantidad: 1 }
       }
 
       it "updates the requested dosis" do
@@ -81,7 +75,7 @@ RSpec.describe "/dosis", type: :request do
         patch dosis_url(dosis),
               params: { dosis: new_attributes }, headers: valid_headers, as: :json
         dosis.reload
-        skip("Add assertions for updated state")
+        expect(Dosis.last.cantidad).to eq(1)
       end
 
       it "renders a JSON response with the dosis" do

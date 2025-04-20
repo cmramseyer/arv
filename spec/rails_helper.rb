@@ -75,6 +75,8 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include ApiHelper
   config.include JsonHelper, type: :request
+
+  config.filter_run_when_matching :focus
 end
 
 require 'shoulda/matchers'

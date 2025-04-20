@@ -3,12 +3,12 @@ FactoryBot.define do
     lote { create(:lote) }
     creado_por { Faker::Name.name }
 
-    transient do
-      dosis_count { 3 }
-    end
-
-    after(:build) do |orden_fumigacion, evaluator|
-      orden_fumigacion.dosis = build_list(:dosis, evaluator.dosis_count, orden_fumigacion: orden_fumigacion)
+    trait(:tres_dosis) do
+      after(:build) do |orden_fumigacion, evaluator|
+        if orden_fumigacion.dosis.empty?
+          orden_fumigacion.dosis = build_list(:dosis, 3, orden_fumigacion: orden_fumigacion)
+        end
+      end
     end
 
     trait(:activa) do
@@ -21,5 +21,6 @@ FactoryBot.define do
       fecha_trabajo { Date.today }
       maquinista { Faker::Name.name }
     end
+
   end
 end
