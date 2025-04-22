@@ -13,7 +13,6 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/lotes", type: :request do
-
   let(:user) { create(:user) }
   let(:file_png) { fixture_file_upload('sample_file.png', 'image/png') }
   let(:file_jpg) { fixture_file_upload('sample_file.jpg', 'image/jpg') }
@@ -21,11 +20,11 @@ RSpec.describe "/lotes", type: :request do
   let(:estancia) { create(:estancia) }
 
   let(:valid_attributes) {
-    { estancia_id: estancia.id, nombre: '8', adjuntos: [file_png]}
+    { estancia_id: estancia.id, nombre: '8', adjuntos: [ file_png ] }
   }
 
   let(:invalid_attributes) {
-    {nombre: nil}
+    { nombre: nil }
   }
 
   let(:valid_headers) { authenticated_header(user) }
@@ -89,7 +88,7 @@ RSpec.describe "/lotes", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        { nombre: '9', adjuntos: [file_jpg] }
+        { nombre: '9', adjuntos: [ file_jpg ] }
       }
 
       it "updates the requested lote" do

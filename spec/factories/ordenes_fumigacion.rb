@@ -21,6 +21,5 @@ FactoryBot.define do
       fecha_trabajo { Date.today }
       maquinista { Faker::Name.name }
     end
-
   end
 end

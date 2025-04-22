@@ -10,13 +10,13 @@ Rails.application.routes.draw do
   resources :lotes
   resources :estancias
   devise_for :users,
-             path: '',
+             path: "",
              path_names: {
-               sign_in: 'login',
-               sign_out: 'logout'
+               sign_in: "login",
+               sign_out: "logout"
              },
              controllers: {
-               sessions: 'users/sessions'
+               sessions: "users/sessions"
              }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

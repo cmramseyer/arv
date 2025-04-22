@@ -29,7 +29,7 @@ class LotesController < ApplicationController
     if params[:lote][:adjuntos].present?
       @lote.adjuntos.attach(params[:lote][:adjuntos])
     end
-  
+
     if @lote.update(lote_params.except(:adjuntos))
       render json: @lote
     else

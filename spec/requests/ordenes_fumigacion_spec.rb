@@ -6,7 +6,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:valid_attributes) {
     orden = build(:orden_fumigacion)
     orden.as_json.merge!(
-      "dosis_attributes" => orden.dosis.map {|d| d.as_json.slice("producto_id", "cantidad") }
+      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") }
     )
   }
 
@@ -46,7 +46,6 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
   describe "POST /create" do
     context "with valid parameters" do
-
       it "creates a new OrdenFumigacion" do
         expect {
           post ordenes_fumigacion_url,
@@ -88,7 +87,6 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
   describe "PATCH /update" do
     context "with valid parameters" do
-
       it "updates the requested orden_fumigacion" do
         orden_fumigacion = OrdenFumigacion.create! valid_attributes
         patch orden_fumigacion_url(orden_fumigacion),
@@ -119,7 +117,6 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
   describe "PATCH /terminar" do
     context "with valid parameters" do
-
       it "termina orden_fumigacion" do
         orden_fumigacion = OrdenFumigacion.create! valid_attributes
         patch terminar_orden_fumigacion_url(orden_fumigacion),
@@ -141,7 +138,6 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     end
 
     context "con una orden ya terminada" do
-
       it "renders a JSON response with error" do
         orden_fumigacion = create(:orden_fumigacion, :terminada)
         patch terminar_orden_fumigacion_url(orden_fumigacion),

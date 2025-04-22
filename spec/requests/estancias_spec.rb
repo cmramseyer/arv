@@ -13,7 +13,6 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/estancias", type: :request do
-  
   let(:user) { create(:user) }
 
   let(:valid_attributes) {
@@ -79,7 +78,7 @@ RSpec.describe "/estancias", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        { nombre: 'estancia2'}
+        { nombre: 'estancia2' }
       }
 
       it "updates the requested estancia" do

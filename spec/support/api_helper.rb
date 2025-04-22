@@ -7,5 +7,4 @@ module ApiHelper
       'Authorization' => "Bearer #{token}"
     }
   end
-
 end

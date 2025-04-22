@@ -35,8 +35,8 @@ class OrdenesFumigacionController < ApplicationController
 
   def terminar
     if @orden_fumigacion.terminada?
-      render json: {error: "La orden ya está terminada"}, status: :unprocessable_entity
-    elsif @orden_fumigacion.update(terminar_orden_fumigacion_params.merge(estado_orden: 'terminada'))
+      render json: { error: "La orden ya está terminada" }, status: :unprocessable_entity
+    elsif @orden_fumigacion.update(terminar_orden_fumigacion_params.merge(estado_orden: "terminada"))
       render json: @orden_fumigacion
     else
       render json: @orden_fumigacion.errors, status: :unprocessable_entity
@@ -49,7 +49,7 @@ class OrdenesFumigacionController < ApplicationController
   end
 
   def pdf
-    orden = OrdenFumigacion.includes(:lote, :dosis, :lote => :estancia).find(params[:id])
+    orden = OrdenFumigacion.includes(:lote, :dosis, lote: :estancia).find(params[:id])
 
     pdf_path = Rails.root.join("storage", "orden_#{orden.id}_#{Time.now.to_i}.pdf")
     Prawn::Document.generate(pdf_path) do |pdf|
@@ -63,16 +63,16 @@ class OrdenesFumigacionController < ApplicationController
       end
       if params[:incluir_mapas].present?
         orden.lote.adjuntos.each do |adjunto|
-          if adjunto.content_type&.start_with?('image')
-            pdf.image StringIO.new(adjunto.download), fit: [500, 300]
+          if adjunto.content_type&.start_with?("image")
+            pdf.image StringIO.new(adjunto.download), fit: [ 500, 300 ]
           end
         end
       end
       pdf
     end
 
-    #system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
-    render json: { message: 'PDF generado e impreso correctamente' }
+    # system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
+    render json: { message: "PDF generado e impreso correctamente" }
   end
 
   private
@@ -83,7 +83,7 @@ class OrdenesFumigacionController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
-      params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [:producto_id, :cantidad])
+      params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [ :producto_id, :cantidad ])
     end
 
     def terminar_orden_fumigacion_params

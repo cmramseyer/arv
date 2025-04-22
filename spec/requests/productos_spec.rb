@@ -1,9 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe "/productos", type: :request do
-  
   let(:user) { create(:user) }
-  
+
   let(:valid_attributes) { build(:producto).attributes }
 
   let(:invalid_attributes) {
@@ -65,7 +64,7 @@ RSpec.describe "/productos", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        {nombre: 'producto2', unidad_medida: 1}
+        { nombre: 'producto2', unidad_medida: 1 }
       }
 
       it "updates the requested producto" do

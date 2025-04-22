@@ -16,9 +16,9 @@
 # end
 
 ActiveSupport::Inflector.inflections(:en) do |inflect|
-  inflect.irregular 'estancia', 'estancias'
-  inflect.irregular 'lote', 'lotes'
-  inflect.irregular 'adjunto', 'adjuntos'
-  inflect.irregular 'dosis', 'dosis'
-  inflect.irregular 'orden_fumigacion', 'ordenes_fumigacion'
+  inflect.irregular "estancia", "estancias"
+  inflect.irregular "lote", "lotes"
+  inflect.irregular "adjunto", "adjuntos"
+  inflect.irregular "dosis", "dosis"
+  inflect.irregular "orden_fumigacion", "ordenes_fumigacion"
 end
