@@ -10,7 +10,7 @@ class LotesController < ApplicationController
 
   # GET /lotes/1
   def show
-    render json: @lote
+    render json: lote_json.full_show
   end
 
   # POST /lotes
@@ -18,7 +18,7 @@ class LotesController < ApplicationController
     @lote = Lote.new(lote_params)
 
     if @lote.save
-      render json: @lote, status: :created, location: @lote
+      render json: lote_json.full_show, status: :created, location: @lote
     else
       render json: @lote.errors, status: :unprocessable_entity
     end
@@ -31,7 +31,7 @@ class LotesController < ApplicationController
     end
 
     if @lote.update(lote_params.except(:adjuntos))
-      render json: @lote
+      render json: lote_json.full_show
     else
       render json: @lote.errors, status: :unprocessable_entity
     end
@@ -51,5 +51,9 @@ class LotesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def lote_params
       params.require(:lote).permit(:nombre, :lat, :long, :link_mapa, :hectareas, :estancia_id, adjuntos: [])
+    end
+
+    def lote_json
+      LoteSerializer.new(@lote)
     end
 end

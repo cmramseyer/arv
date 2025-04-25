@@ -29,6 +29,8 @@ RSpec.describe "/lotes", type: :request do
 
   let(:valid_headers) { authenticated_header(user) }
 
+  let(:full_show_keys) { LoteSerializer::FULL_SHOW_KEYS }
+
   describe "GET /index" do
     it "renders a successful response" do
       Lote.create! valid_attributes
@@ -42,6 +44,18 @@ RSpec.describe "/lotes", type: :request do
       lote = Lote.create! valid_attributes
       get lote_url(lote), headers: valid_headers, as: :json
       expect(response).to be_successful
+    end
+
+    it "renders the correct keys" do
+      lote = Lote.create! valid_attributes
+      get lote_url(lote), headers: valid_headers, as: :json
+      expect(json_response.keys).to match_array(full_show_keys)
+    end
+
+    it "shows attached files in the response" do
+      lote = Lote.create! valid_attributes
+      get lote_url(lote), headers: valid_headers, as: :json
+      expect(json_response["adjuntos"]).not_to be_empty
     end
   end
 
@@ -58,6 +72,7 @@ RSpec.describe "/lotes", type: :request do
         post lotes_url,
              params: { lote: valid_attributes }, headers: valid_headers
         expect(Lote.last.adjuntos.count).to eq(1)
+        expect(json_response["adjuntos"]).not_to be_empty
       end
 
       it "renders a JSON response with the new lote" do
@@ -98,6 +113,8 @@ RSpec.describe "/lotes", type: :request do
         lote.reload
         expect(Lote.last.nombre).to eq('9')
         expect(Lote.last.adjuntos.count).to eq(2)
+        expect(json_response["adjuntos"]).not_to be_empty
+        expect(json_response["adjuntos"].map {|a| a["filename"]}).to match_array(["sample_file.png", "sample_file.jpg"])
       end
 
       it "renders a JSON response with the lote" do
