@@ -3,7 +3,11 @@ class LotesController < ApplicationController
 
   # GET /lotes
   def index
-    @lotes = Lote.all
+    if params[:estancia_id]
+      @lotes = Lote.where(estancia_id: params[:estancia_id])
+    else
+      @lotes = Lote.all
+    end
 
     render json: @lotes
   end
