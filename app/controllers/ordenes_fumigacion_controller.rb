@@ -5,7 +5,7 @@ class OrdenesFumigacionController < ApplicationController
   def index
     @ordenes_fumigacion = OrdenFumigacion.all
 
-    render json: @ordenes_fumigacion
+    render json: ordenes_fumigacion_json.map(&:full_show)
   end
 
   # GET /ordenes_fumigacion/1
@@ -88,5 +88,13 @@ class OrdenesFumigacionController < ApplicationController
 
     def terminar_orden_fumigacion_params
       params.require(:orden_fumigacion).permit(:info_trabajo, :fecha_trabajo, :maquinista)
+    end
+
+    def orden_fumigacion_json
+      OrdenFumigacionSerializer.new(@orden_fumigacion)
+    end
+
+    def ordenes_fumigacion_json
+      @ordenes_fumigacion.map {|of| OrdenFumigacionSerializer.new(of)}
     end
 end
