@@ -10,7 +10,7 @@ class OrdenesFumigacionController < ApplicationController
 
   # GET /ordenes_fumigacion/1
   def show
-    render json: @orden_fumigacion
+    render json: orden_fumigacion_json.full_show
   end
 
   # POST /ordenes_fumigacion
@@ -61,11 +61,10 @@ class OrdenesFumigacionController < ApplicationController
       orden.dosis.each_with_index do |dosi, idx|
         pdf.text "#{idx + 1} - #{dosi.producto.nombre}, #{dosi.cantidad}#{dosi.producto.unidad_medida}"
       end
-      if params[:incluir_mapas].present?
-        orden.lote.adjuntos.each do |adjunto|
-          if adjunto.content_type&.start_with?("image")
-            pdf.image StringIO.new(adjunto.download), fit: [ 500, 300 ]
-          end
+      # if params[:incluir_mapas].present?
+      orden.lote.adjuntos.each do |adjunto|
+        if adjunto.content_type&.start_with?("image")
+          pdf.image StringIO.new(adjunto.download), fit: [ 500, 300 ]
         end
       end
       pdf
@@ -83,7 +82,7 @@ class OrdenesFumigacionController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
-      params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [ :producto_id, :cantidad ])
+      params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [ :id, :producto_id, :cantidad, :_destroy ])
     end
 
     def terminar_orden_fumigacion_params
