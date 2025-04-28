@@ -51,7 +51,7 @@ class OrdenesFumigacionController < ApplicationController
   def pdf
     orden = OrdenFumigacion.includes(:lote, :dosis, lote: :estancia).find(params[:id])
 
-    pdf_path = Rails.root.join("storage", "orden_#{orden.id}_#{Time.now.to_i}.pdf")
+    pdf_path = Rails.root.join("storage", "orden_#{orden.id}.pdf")
     Prawn::Document.generate(pdf_path) do |pdf|
       pdf.text "Orden: #{orden.id}"
       pdf.text "Orden Creada: #{orden.created_at.strftime('%d/%m/%Y %H:%M')} Por: #{orden.creado_por}"
@@ -70,8 +70,14 @@ class OrdenesFumigacionController < ApplicationController
       pdf
     end
 
+    orden.orden_pdf.attach(
+      io: File.open(pdf_path),
+      filename: "orden_#{orden.id}.pdf",
+      content_type: 'application/pdf'
+    )
+
     # system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
-    render json: { message: "PDF generado e impreso correctamente" }
+    render json: { orden_url: rails_blob_url(orden.orden_pdf, only_path: false), orden_pdf_fecha_creacion: orden.orden_pdf.created_at, message: "PDF generado e impreso correctamente" }
   end
 
   private
