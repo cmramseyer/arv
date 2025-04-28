@@ -3,7 +3,12 @@ class OrdenesFumigacionController < ApplicationController
 
   # GET /ordenes_fumigacion
   def index
-    @ordenes_fumigacion = OrdenFumigacion.all
+    if estado_params?
+      @ordenes_fumigacion = OrdenFumigacion.where(estado_orden: params[:estado])
+    else
+      @ordenes_fumigacion = OrdenFumigacion.all
+    end
+    
 
     render json: ordenes_fumigacion_json.map(&:full_show)
   end
@@ -101,5 +106,9 @@ class OrdenesFumigacionController < ApplicationController
 
     def ordenes_fumigacion_json
       @ordenes_fumigacion.map {|of| OrdenFumigacionSerializer.new(of)}
+    end
+
+    def estado_params?
+      ["activa", "terminada"].include?(params[:estado])
     end
 end
