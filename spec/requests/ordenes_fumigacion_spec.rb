@@ -6,7 +6,23 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:valid_attributes) {
     orden = build(:orden_fumigacion)
     orden.as_json.merge!(
-      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") }
+      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") },
+      "lote_ids" => orden.lotes.map(&:id)
+    )
+  }
+
+  let(:valid_attributes_many_lotes) {
+    orden = build(:orden_fumigacion, :many_lotes)
+    orden.as_json.merge!(
+      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") },
+      "lote_ids" => orden.lotes.map(&:id)
+    )
+  }
+
+  let(:valid_attributes_temp_info) {
+    orden = build(:orden_fumigacion, :temp_info)
+    orden.as_json.merge!(
+      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") },
     )
   }
 
@@ -26,6 +42,14 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     { creado_por: nil }
   }
 
+  let(:invalid_attributes_no_lote_no_temp_info) {
+    orden = build(:orden_fumigacion, :temp_info)
+    orden.temp_lotes = nil
+    orden.as_json.merge!(
+      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") }
+    )
+  }
+
   let(:valid_headers) { authenticated_header(user) }
 
   describe "GET /index" do
@@ -37,15 +61,25 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   end
 
   describe "GET /show" do
-    it "renders a successful response" do
-      orden_fumigacion = OrdenFumigacion.create! valid_attributes
-      get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
-      expect(response).to be_successful
+    context "with one lote" do
+      it "renders a successful response" do
+        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
+        expect(response).to be_successful
+      end
+    end
+
+    context "with many lotes" do
+      it "renders a successful response" do
+        orden_fumigacion = OrdenFumigacion.create! valid_attributes_many_lotes
+        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
+        expect(response).to be_successful
+      end
     end
   end
 
   describe "POST /create" do
-    context "with valid parameters" do
+    context "with valid parameters, one lote" do
       it "creates a new OrdenFumigacion" do
         expect {
           post ordenes_fumigacion_url,
@@ -57,6 +91,55 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         post ordenes_fumigacion_url,
              params: { orden_fumigacion: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
+        expect(response.content_type).to match(a_string_including("application/json"))
+      end
+    end
+
+    context "with valid parameters, many lotes" do
+      it "creates a new OrdenFumigacion" do
+        expect {
+          post ordenes_fumigacion_url,
+               params: { orden_fumigacion: valid_attributes_many_lotes }, headers: valid_headers, as: :json
+        }.to change(OrdenFumigacion, :count).by(1)
+      end
+
+      it "renders a JSON response with the new orden_fumigacion" do
+        post ordenes_fumigacion_url,
+             params: { orden_fumigacion: valid_attributes_many_lotes }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:created)
+        expect(response.content_type).to match(a_string_including("application/json"))
+      end
+    end
+
+    context "with valid parameters, temp info" do
+      it "creates a new OrdenFumigacion" do
+        expect {
+          post ordenes_fumigacion_url,
+               params: { orden_fumigacion: valid_attributes_temp_info }, headers: valid_headers, as: :json
+        }.to change(OrdenFumigacion, :count).by(1)
+      end
+
+      it "renders a JSON response with the new orden_fumigacion" do
+        post ordenes_fumigacion_url,
+             params: { orden_fumigacion: valid_attributes_temp_info }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:created)
+        expect(response.content_type).to match(a_string_including("application/json"))
+      end
+    end
+
+    context "with invalid parameters, no lotes, no temp_lotes info" do
+      it "creates a new OrdenFumigacion" do
+        expect {
+          post ordenes_fumigacion_url,
+               params: { orden_fumigacion: invalid_attributes_no_lote_no_temp_info }, headers: valid_headers, as: :json
+        }.to change(OrdenFumigacion, :count).by(0)
+      end
+
+      it "renders a JSON response with the new orden_fumigacion" do
+        post ordenes_fumigacion_url,
+             params: { orden_fumigacion: invalid_attributes_no_lote_no_temp_info }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)["base"][0]).to eq("Debe tener al menos un lote, o temp_lotes y temp_hectareas deben estar completos y temp_hectareas distinto de cero.")
         expect(response.content_type).to match(a_string_including("application/json"))
       end
     end

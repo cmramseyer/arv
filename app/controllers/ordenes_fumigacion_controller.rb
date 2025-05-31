@@ -8,7 +8,7 @@ class OrdenesFumigacionController < ApplicationController
     else
       @ordenes_fumigacion = OrdenFumigacion.all
     end
-    
+
 
     render json: ordenes_fumigacion_json.map(&:full_show)
   end
@@ -93,7 +93,7 @@ class OrdenesFumigacionController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
-      params.require(:orden_fumigacion).permit(:lote_id, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, dosis_attributes: [ :id, :producto_id, :cantidad, :_destroy ])
+      params.require(:orden_fumigacion).permit(:temp_lotes, :temp_hectareas, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, lote_ids: [], dosis_attributes: [ :id, :producto_id, :cantidad, :_destroy ])
     end
 
     def terminar_orden_fumigacion_params
