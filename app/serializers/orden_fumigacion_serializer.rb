@@ -13,10 +13,10 @@ class OrdenFumigacionSerializer
       temp_lotes: @orden_fumigacion.temp_lotes,
       temp_hectareas: @orden_fumigacion.temp_hectareas,
       estancia_id: @orden_fumigacion.lotes.map(&:estancia_id),
-      nombre_estancia: @orden_fumigacion.lotes.map(&:estancia_nombre)&.uniq,
+      nombre_estancia: @orden_fumigacion.nombre_estancia,
       lotes_ids: @orden_fumigacion.lotes.map(&:id),
-      nombre_lote: @orden_fumigacion.lotes.map(&:nombre).join(", "),
-      hectareas: @orden_fumigacion.lotes.sum(&:hectareas),
+      nombre_lote: nombre_lote,
+      hectareas: hectareas,
       estado_orden: @orden_fumigacion.estado_orden,
       dosis: @orden_fumigacion.dosis.map {|d| dosis(d)},
       info_trabajo: @orden_fumigacion.info_trabajo,
@@ -29,6 +29,18 @@ class OrdenFumigacionSerializer
       orden_url: @orden_fumigacion.orden_pdf.attached? ? rails_blob_url(@orden_fumigacion.orden_pdf, only_path: false) : nil,
       orden_pdf_fecha_creacion: @orden_fumigacion.orden_pdf&.created_at
     }
+  end
+
+  def hectareas
+    @orden_fumigacion.lotes.any? ? @orden_fumigacion.lotes.sum(&:hectareas) : @orden_fumigacion.temp_hectareas
+  end
+
+  def nombre_estancia
+    @orden_fumigacion.nombre_estancia
+  end
+
+  def nombre_lote
+    @orden_fumigacion.lotes.any? ? @orden_fumigacion.lotes.map(&:nombre).join(", ") : @orden_fumigacion.temp_lotes
   end
 
   def dosis(d)

@@ -13,6 +13,10 @@ class OrdenFumigacion < ApplicationRecord
 
   validate :must_have_lotes_or_temp_fields
 
+  def nombre_estancia
+    lotes.map(&:estancia_nombre).uniq.join(', ')
+  end
+
   private
 
   def needs_temp_fields?

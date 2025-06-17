@@ -6,4 +6,5 @@ class Lote < ApplicationRecord
   validates :nombre, presence: true
 
   delegate :nombre, to: :estancia, prefix: true
+
 end
