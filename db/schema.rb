@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_19_064336) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -66,6 +66,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_19_064336) do
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
+  create_table "lote_ordenes_fumigacion", force: :cascade do |t|
+    t.integer "lote_id", null: false
+    t.integer "orden_fumigacion_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lote_id"], name: "index_lote_ordenes_fumigacion_on_lote_id"
+    t.index ["orden_fumigacion_id"], name: "index_lote_ordenes_fumigacion_on_orden_fumigacion_id"
+  end
+
   create_table "lotes", force: :cascade do |t|
     t.string "nombre"
     t.decimal "lat", precision: 10, scale: 8
@@ -79,7 +88,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_19_064336) do
   end
 
   create_table "ordenes_fumigacion", force: :cascade do |t|
-    t.integer "lote_id", null: false
     t.text "datos_clima"
     t.text "info_trabajo"
     t.string "creado_por"
@@ -88,7 +96,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_19_064336) do
     t.string "maquinista"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["lote_id"], name: "index_ordenes_fumigacion_on_lote_id"
+    t.string "temp_lotes"
+    t.float "temp_hectareas"
   end
 
   create_table "productos", force: :cascade do |t|
@@ -115,6 +124,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_19_064336) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "dosis", "ordenes_fumigacion"
   add_foreign_key "dosis", "productos"
+  add_foreign_key "lote_ordenes_fumigacion", "lotes"
+  add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"
-  add_foreign_key "ordenes_fumigacion", "lotes"
 end
