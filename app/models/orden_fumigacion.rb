@@ -17,6 +17,10 @@ class OrdenFumigacion < ApplicationRecord
     lotes.map(&:estancia_nombre).uniq.join(', ')
   end
 
+  def estancia_id
+    lotes.map(&:estancia_id)&.uniq&.first
+  end
+
   private
 
   def needs_temp_fields?

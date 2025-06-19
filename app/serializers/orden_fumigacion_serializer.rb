@@ -12,7 +12,7 @@ class OrdenFumigacionSerializer
       id: @orden_fumigacion.id,
       temp_lotes: @orden_fumigacion.temp_lotes,
       temp_hectareas: @orden_fumigacion.temp_hectareas,
-      estancia_id: @orden_fumigacion.lotes.map(&:estancia_id),
+      estancia_id: @orden_fumigacion.estancia_id,
       nombre_estancia: @orden_fumigacion.nombre_estancia,
       lotes_ids: @orden_fumigacion.lotes.map(&:id),
       nombre_lote: nombre_lote,
