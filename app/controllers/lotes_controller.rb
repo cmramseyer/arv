@@ -9,7 +9,7 @@ class LotesController < ApplicationController
       @lotes = Lote.all
     end
 
-    render json: @lotes
+    render json: lotes_json.map(&:full_show)
   end
 
   # GET /lotes/1
@@ -59,5 +59,9 @@ class LotesController < ApplicationController
 
     def lote_json
       LoteSerializer.new(@lote)
+    end
+
+    def lotes_json
+      @lotes.map {|lote| LoteSerializer.new(lote)}
     end
 end

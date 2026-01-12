@@ -58,26 +58,9 @@ class OrdenesFumigacionController < ApplicationController
 
     pdf_path = Rails.root.join("storage", "orden_#{orden.id}.pdf")
     Prawn::Document.generate(pdf_path) do |pdf|
-      nombre_lote = orden.lote_ids.present? ? orden.lotes.map(&:nombre).join(', ') : orden.temp_lotes
-      hectareas = orden.lote_ids.present? ? orden.lotes.sum(&:hectareas) : orden.temp_hectareas
-      pdf.text "Orden: #{orden.id}"
-      pdf.text "Orden Creada: #{orden.created_at.strftime('%d/%m/%Y %H:%M')} Por: #{orden.creado_por}"
-      pdf.text "Estancia: #{orden.nombre_estancia}"
-      pdf.text "Lote: #{nombre_lote}"
-      pdf.text "Hectareas: #{hectareas}"
-      pdf.text "Dosis:"
-      orden.dosis.each_with_index do |dosi, idx|
-        pdf.text "#{idx + 1} - #{dosi.producto.nombre}, #{dosi.cantidad}#{dosi.producto.unidad_medida}"
-      end
-      # if params[:incluir_mapas].present?
-      orden.lotes.each do |lote|
-        lote.adjuntos.each do |adjunto|
-          if adjunto.content_type&.start_with?("image")
-            pdf.image StringIO.new(adjunto.download), fit: [ 500, 300 ]
-          end
-        end
-      end
-      pdf
+      reporte = ReporteOrden.new(pdf, orden)
+      reporte.generar
+      reporte.pdf
     end
 
     orden.orden_pdf.attach(
