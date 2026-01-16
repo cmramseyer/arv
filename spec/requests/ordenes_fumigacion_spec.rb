@@ -246,10 +246,11 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     it "returns agrupado por estancia" do
       estancia = create(:estancia, nombre: "Estancia 1")
       lote = create(:lote, estancia: estancia, hectareas: 22)
-
+      orden = create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
+      orden_facturada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 23))
+      create(:orden_facturada, orden_fumigacion: orden_facturada, fecha_factura: Time.zone.now)
       create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
       create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
-      create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
 
       post pendiente_factura_ordenes_fumigacion_url,
            params: { fecha_desde: "2025-10-01", fecha_hasta: "2025-10-31" },
@@ -266,8 +267,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               "lote_id" => lote.id,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
-              "maquinista" => OrdenFumigacion.last.maquinista,
-              "orden_id" => OrdenFumigacion.last.id
+              "maquinista" => orden.maquinista,
+              "orden_id" => orden.id
             }
           ]
         }

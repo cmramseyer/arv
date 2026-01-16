@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_16_224007) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -87,6 +87,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
     t.index ["estancia_id"], name: "index_lotes_on_estancia_id"
   end
 
+  create_table "orden_facturadas", force: :cascade do |t|
+    t.integer "orden_fumigacion_id", null: false
+    t.datetime "fecha_factura"
+    t.datetime "fecha_pago"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["orden_fumigacion_id"], name: "index_orden_facturadas_on_orden_fumigacion_id"
+  end
+
   create_table "ordenes_fumigacion", force: :cascade do |t|
     t.text "datos_clima"
     t.text "info_trabajo"
@@ -127,4 +136,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
   add_foreign_key "lote_ordenes_fumigacion", "lotes"
   add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"
+  add_foreign_key "orden_facturadas", "ordenes_fumigacion"
 end

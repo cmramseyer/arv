@@ -6,6 +6,8 @@ RSpec.describe OrdenesPendientesFactura do
       orden_terminada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 15))
       orden_fuera = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
       orden_activa = create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 15))
+      orden_facturada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 20))
+      create(:orden_facturada, orden_fumigacion: orden_facturada, fecha_factura: Time.zone.now)
 
       resultados = described_class.new(
         fecha_desde: Date.new(2025, 10, 1),
@@ -13,7 +15,7 @@ RSpec.describe OrdenesPendientesFactura do
       ).call
 
       expect(resultados).to contain_exactly(orden_terminada)
-      expect(resultados).not_to include(orden_fuera, orden_activa)
+      expect(resultados).not_to include(orden_fuera, orden_activa, orden_facturada)
     end
   end
 end

@@ -7,16 +7,13 @@ class OrdenesPendientesFactura
   def call
     OrdenFumigacion
       .includes(lotes: :estancia)
+      .left_outer_joins(:orden_facturada)
       .where(estado_orden: "terminada")
       .where(fecha_trabajo: fecha_desde..fecha_hasta)
-      .select { |orden| !orden_facturada?(orden) }
+      .where(orden_facturadas: { fecha_factura: nil })
   end
 
   private
 
   attr_reader :fecha_desde, :fecha_hasta
-
-  def orden_facturada?(orden)
-    false
-  end
 end

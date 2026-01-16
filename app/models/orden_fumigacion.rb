@@ -2,6 +2,7 @@ class OrdenFumigacion < ApplicationRecord
   has_many :lote_ordenes_fumigacion, dependent: :destroy
   has_many :lotes, through: :lote_ordenes_fumigacion
   has_many :dosis, dependent: :destroy
+  has_one :orden_facturada, dependent: :destroy
   accepts_nested_attributes_for :dosis, allow_destroy: true
   has_one_attached :orden_pdf
 
@@ -14,7 +15,7 @@ class OrdenFumigacion < ApplicationRecord
   validate :must_have_lotes_or_temp_fields
 
   def nombre_estancia
-    lotes.map(&:estancia_nombre).uniq.join(', ')
+    lotes.map(&:estancia_nombre).uniq.join(", ")
   end
 
   def estancia_id
@@ -29,7 +30,7 @@ class OrdenFumigacion < ApplicationRecord
 
   def must_have_lotes_or_temp_fields
     if lotes.empty? && (temp_lotes.blank? || temp_hectareas.blank? || temp_hectareas.to_f == 0)
-      errors.add(:base, 'Debe tener al menos un lote, o temp_lotes y temp_hectareas deben estar completos y temp_hectareas distinto de cero.')
+      errors.add(:base, "Debe tener al menos un lote, o temp_lotes y temp_hectareas deben estar completos y temp_hectareas distinto de cero.")
     end
   end
 end
