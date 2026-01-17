@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   resources :dosis
   resources :ordenes_fumigacion do
     collection do
-      post :pendiente_factura
+      get :pendiente_factura
     end
     member do
       patch :terminar

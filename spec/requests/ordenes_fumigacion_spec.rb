@@ -242,7 +242,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     end
   end
 
-  describe "POST /pendiente_factura" do
+  describe "GET /pendiente_factura" do
     it "returns agrupado por estancia" do
       estancia = create(:estancia, nombre: "Estancia 1")
       lote = create(:lote, estancia: estancia, hectareas: 22)
@@ -252,10 +252,9 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
       create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
 
-      post pendiente_factura_ordenes_fumigacion_url,
-           params: { fecha_desde: "2025-10-01", fecha_hasta: "2025-10-31" },
-           headers: valid_headers,
-           as: :json
+      get pendiente_factura_ordenes_fumigacion_url,
+          params: { fecha_desde: "2025-10-01", fecha_hasta: "2025-10-31" },
+          headers: valid_headers
 
       expect(response).to have_http_status(:ok)
       expect(json_response).to eq([
@@ -276,10 +275,9 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     end
 
     it "validates required params" do
-      post pendiente_factura_ordenes_fumigacion_url,
-           params: { fecha_desde: "", fecha_hasta: "" },
-           headers: valid_headers,
-           as: :json
+      get pendiente_factura_ordenes_fumigacion_url,
+          params: { fecha_desde: "", fecha_hasta: "" },
+          headers: valid_headers
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(json_response["error"]).to eq("fecha_desde y fecha_hasta son requeridas")
