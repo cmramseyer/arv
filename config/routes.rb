@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   resources :productos
   resources :lotes
   resources :estancias
-  resources :orden_facturadas, only: %i[ create ]
+  resources :facturas, only: %i[ create ]
   devise_for :users,
              path: "",
              path_names: {

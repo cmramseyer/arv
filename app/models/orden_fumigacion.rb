@@ -2,7 +2,7 @@ class OrdenFumigacion < ApplicationRecord
   has_many :lote_ordenes_fumigacion, dependent: :destroy
   has_many :lotes, through: :lote_ordenes_fumigacion
   has_many :dosis, dependent: :destroy
-  has_one :orden_facturada, dependent: :destroy
+  has_one :factura, dependent: :destroy
   accepts_nested_attributes_for :dosis, allow_destroy: true
   has_one_attached :orden_pdf
 

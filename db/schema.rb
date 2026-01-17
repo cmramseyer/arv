@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_16_224007) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_17_162557) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -58,6 +58,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_16_224007) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "facturas", force: :cascade do |t|
+    t.datetime "fecha_factura"
+    t.datetime "fecha_pago"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "orden_fumigacion_id", null: false
+    t.index ["orden_fumigacion_id"], name: "index_facturas_on_orden_fumigacion_id"
+  end
+
   create_table "jwt_denylists", force: :cascade do |t|
     t.string "jti"
     t.datetime "exp"
@@ -85,15 +94,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_16_224007) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["estancia_id"], name: "index_lotes_on_estancia_id"
-  end
-
-  create_table "orden_facturadas", force: :cascade do |t|
-    t.integer "orden_fumigacion_id", null: false
-    t.datetime "fecha_factura"
-    t.datetime "fecha_pago"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["orden_fumigacion_id"], name: "index_orden_facturadas_on_orden_fumigacion_id"
   end
 
   create_table "ordenes_fumigacion", force: :cascade do |t|
@@ -133,8 +133,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_16_224007) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "dosis", "ordenes_fumigacion"
   add_foreign_key "dosis", "productos"
+  add_foreign_key "facturas", "ordenes_fumigacion"
   add_foreign_key "lote_ordenes_fumigacion", "lotes"
   add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"
-  add_foreign_key "orden_facturadas", "ordenes_fumigacion"
 end

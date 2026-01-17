@@ -1,4 +1,4 @@
-class OrdenFacturada < ApplicationRecord
+class Factura < ApplicationRecord
   belongs_to :orden_fumigacion
 
   validates :fecha_factura, presence: true

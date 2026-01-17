@@ -7,7 +7,7 @@ RSpec.describe OrdenesPendientesFactura do
       orden_fuera = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
       orden_activa = create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 15))
       orden_facturada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 20))
-      create(:orden_facturada, orden_fumigacion: orden_facturada, fecha_factura: Time.zone.now)
+      create(:factura, orden_fumigacion: orden_facturada, fecha_factura: Time.zone.now)
 
       resultados = described_class.new(
         fecha_desde: Date.new(2025, 10, 1),
