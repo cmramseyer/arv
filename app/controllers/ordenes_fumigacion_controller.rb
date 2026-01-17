@@ -92,6 +92,10 @@ class OrdenesFumigacionController < ApplicationController
     end
 
     def validate_pendiente_factura_params
+      if params[:fecha_desde].blank? && params[:fecha_hasta].blank?
+        return
+      end
+
       if params[:fecha_desde].blank? || params[:fecha_hasta].blank?
         render json: { error: "fecha_desde y fecha_hasta son requeridas" }, status: :unprocessable_entity
         return
