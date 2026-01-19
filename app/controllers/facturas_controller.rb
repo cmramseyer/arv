@@ -1,23 +1,33 @@
 class FacturasController < ApplicationController
   def create
     factura = Factura.new(fecha_factura: Time.zone.now)
-    orden_fumigacion_ids = factura_params[:orden_fumigacion_ids]
+    ordenes_fumigacion = factura_params[:ordenes_fumigacion]
 
-    if orden_fumigacion_ids.blank?
-      return render json: { orden_fumigacion_ids: [ "no puede estar vacío" ] }, status: :unprocessable_entity
+    if ordenes_fumigacion.blank?
+      return render json: { ordenes_fumigacion: [ "no puede estar vacío" ] }, status: :unprocessable_entity
     end
 
-    if factura.save
-      factura.ordenes_fumigacion << OrdenFumigacion.where(id: orden_fumigacion_ids)
-      render json: factura, status: :created
-    else
-      render json: factura.errors, status: :unprocessable_entity
+    Factura.transaction do
+      factura.save!
+      ordenes_fumigacion.each do |orden|
+        FacturasOrdenesFumigacion.create!(
+          factura: factura,
+          orden_fumigacion_id: orden[:id],
+          importe: orden[:importe] || 0.0
+        )
+      end
     end
+
+    render json: factura, status: :created
+  rescue ActiveRecord::RecordInvalid => error
+    render json: error.record.errors, status: :unprocessable_entity
+  rescue ActiveRecord::RecordNotUnique
+    render json: { ordenes_fumigacion: [ "ya están facturadas" ] }, status: :unprocessable_entity
   end
 
   private
 
   def factura_params
-    params.require(:factura).permit(orden_fumigacion_ids: [])
+    params.permit(ordenes_fumigacion: %i[id importe])
   end
 end

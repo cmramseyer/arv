@@ -7,27 +7,32 @@ RSpec.describe "/facturas", type: :request do
   describe "POST /create" do
     it "creates a factura" do
       ordenes = create_list(:orden_fumigacion, 2, :terminada)
+      ordenes_params = ordenes.map.with_index do |orden, index|
+        { id: orden.id, importe: 100.25 + index }
+      end
 
       expect {
         post facturas_url,
-             params: { factura: { orden_fumigacion_ids: ordenes.map(&:id) } },
+             params: { ordenes_fumigacion: ordenes_params },
              headers: valid_headers,
              as: :json
       }.to change(Factura, :count).by(1)
 
       factura = Factura.last
       expect(factura.ordenes_fumigacion).to match_array(ordenes)
+      facturas_ordenes = factura.facturas_ordenes_fumigacion
+      expect(facturas_ordenes.map(&:importe)).to match_array([ 100.25.to_d, 101.25.to_d ])
       expect(factura.fecha_factura).to be_present
     end
 
     it "returns errors with invalid params" do
       post facturas_url,
-           params: { factura: { orden_fumigacion_ids: [] } },
+           params: { ordenes_fumigacion: [] },
            headers: valid_headers,
            as: :json
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response["orden_fumigacion_ids"]).to be_present
+      expect(json_response["ordenes_fumigacion"]).to be_present
     end
   end
 end
