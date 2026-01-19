@@ -1,5 +1,6 @@
 class OrdenesFumigacionController < ApplicationController
   before_action :set_orden_fumigacion, only: %i[ show update terminar destroy pdf ]
+  before_action :validate_pendiente_factura_params, only: %i[ pendiente_factura ]
 
   # GET /ordenes_fumigacion
   def index
@@ -16,6 +17,17 @@ class OrdenesFumigacionController < ApplicationController
   # GET /ordenes_fumigacion/1
   def show
     render json: orden_fumigacion_json.full_show
+  end
+
+  def pendiente_factura
+    ordenes = OrdenesPendientesFactura.new(
+      fecha_desde: params[:fecha_desde],
+      fecha_hasta: params[:fecha_hasta]
+    ).call
+
+    reporte = OrdenesPendientesFacturaPorEstancia.new(ordenes).call
+
+    render json: reporte
   end
 
   # POST /ordenes_fumigacion
@@ -66,7 +78,7 @@ class OrdenesFumigacionController < ApplicationController
     orden.orden_pdf.attach(
       io: File.open(pdf_path),
       filename: "orden_#{orden.id}.pdf",
-      content_type: 'application/pdf'
+      content_type: "application/pdf"
     )
 
     # system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
@@ -77,6 +89,22 @@ class OrdenesFumigacionController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_orden_fumigacion
       @orden_fumigacion = OrdenFumigacion.find(params.expect(:id))
+    end
+
+    def validate_pendiente_factura_params
+      if params[:fecha_desde].blank? && params[:fecha_hasta].blank?
+        return
+      end
+
+      if params[:fecha_desde].blank? || params[:fecha_hasta].blank?
+        render json: { error: "fecha_desde y fecha_hasta son requeridas" }, status: :unprocessable_entity
+        return
+      end
+
+      Date.parse(params[:fecha_desde])
+      Date.parse(params[:fecha_hasta])
+    rescue Date::Error
+      render json: { error: "fecha_desde y fecha_hasta deben ser fechas válidas" }, status: :unprocessable_entity
     end
 
     # Only allow a list of trusted parameters through.
@@ -93,10 +121,10 @@ class OrdenesFumigacionController < ApplicationController
     end
 
     def ordenes_fumigacion_json
-      @ordenes_fumigacion.map {|of| OrdenFumigacionSerializer.new(of)}
+      @ordenes_fumigacion.map { |of| OrdenFumigacionSerializer.new(of) }
     end
 
     def estado_params?
-      ["activa", "terminada"].include?(params[:estado])
+      [ "activa", "terminada" ].include?(params[:estado])
     end
 end

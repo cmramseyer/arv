@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :orden_fumigacion do
-    lotes { [create(:lote)] }
+    lotes { [ create(:lote) ] }
     creado_por { Faker::Name.name }
 
     # after(:build) do |orden|
@@ -32,7 +32,7 @@ FactoryBot.define do
     end
 
     trait(:many_lotes) do
-      lotes { [create(:lote), create(:lote)] }
+      lotes { [ create(:lote), create(:lote) ] }
     end
   end
 end

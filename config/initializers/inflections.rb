@@ -20,5 +20,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "lote", "lotes"
   inflect.irregular "adjunto", "adjuntos"
   inflect.irregular "dosis", "dosis"
+  inflect.irregular "factura", "facturas"
+  inflect.irregular "factura_orden_fumigacion", "facturas_ordenes_fumigacion"
   inflect.irregular "orden_fumigacion", "ordenes_fumigacion"
 end

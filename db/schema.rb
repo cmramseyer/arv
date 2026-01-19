@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_19_211635) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -56,6 +56,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "facturas", force: :cascade do |t|
+    t.datetime "fecha_factura"
+    t.datetime "fecha_pago"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "nro_factura"
+  end
+
+  create_table "facturas_ordenes_fumigacion", force: :cascade do |t|
+    t.integer "factura_id", null: false
+    t.integer "orden_fumigacion_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "importe", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "nro_orden_cliente"
+    t.index ["factura_id"], name: "index_facturas_ordenes_fumigacion_on_factura_id"
+    t.index ["orden_fumigacion_id"], name: "index_facturas_ordenes_fumigacion_on_orden_fumigacion_id", unique: true
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
@@ -124,6 +143,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_31_175539) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "dosis", "ordenes_fumigacion"
   add_foreign_key "dosis", "productos"
+  add_foreign_key "facturas_ordenes_fumigacion", "facturas"
+  add_foreign_key "facturas_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lote_ordenes_fumigacion", "lotes"
   add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"

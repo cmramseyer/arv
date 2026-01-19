@@ -242,6 +242,83 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     end
   end
 
+  describe "GET /pendiente_factura" do
+    it "returns agrupado por estancia" do
+      estancia = create(:estancia, nombre: "Estancia 1")
+      lote = create(:lote, estancia: estancia, hectareas: 22)
+      orden = create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
+      orden_facturada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 23))
+      create(:factura, ordenes_fumigacion: [ orden_facturada ], fecha_factura: Time.zone.now)
+      create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
+      create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
+
+      get pendiente_factura_ordenes_fumigacion_url,
+          params: { fecha_desde: "2025-10-01", fecha_hasta: "2025-10-31" },
+          headers: valid_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response).to eq([
+        {
+          "id" => estancia.id,
+          "nombre" => "Estancia 1",
+          "data" => [
+            {
+              "lote_id" => lote.id,
+              "hectareas" => lote.hectareas.to_s,
+              "fecha_trabajo" => "2025-10-22",
+              "maquinista" => orden.maquinista,
+              "orden_id" => orden.id
+            }
+          ]
+        }
+      ])
+    end
+
+    it "returns todas cuando no hay fechas" do
+      estancia = create(:estancia, nombre: "Estancia 1")
+      lote = create(:lote, estancia: estancia, hectareas: 22)
+      lote_dos = create(:lote, estancia: estancia, hectareas: 16.99)
+      orden = create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
+      orden_dos = create(:orden_fumigacion, :terminada, lotes: [ lote_dos ], fecha_trabajo: Date.new(2025, 11, 1))
+      create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
+
+      get pendiente_factura_ordenes_fumigacion_url, headers: valid_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response).to eq([
+        {
+          "id" => estancia.id,
+          "nombre" => "Estancia 1",
+          "data" => [
+            {
+              "lote_id" => lote.id,
+              "hectareas" => lote.hectareas.to_s,
+              "fecha_trabajo" => "2025-10-22",
+              "maquinista" => orden.maquinista,
+              "orden_id" => orden.id
+            },
+            {
+              "lote_id" => lote_dos.id,
+              "hectareas" => lote_dos.hectareas.to_s,
+              "fecha_trabajo" => "2025-11-01",
+              "maquinista" => orden_dos.maquinista,
+              "orden_id" => orden_dos.id
+            }
+          ]
+        }
+      ])
+    end
+
+    it "validates required params" do
+      get pendiente_factura_ordenes_fumigacion_url,
+          params: { fecha_desde: "", fecha_hasta: "2025-10-31" },
+          headers: valid_headers
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(json_response["error"]).to eq("fecha_desde y fecha_hasta son requeridas")
+    end
+  end
+
   describe "DELETE /destroy" do
     it "destroys the requested orden_fumigacion" do
       orden_fumigacion = OrdenFumigacion.create! valid_attributes

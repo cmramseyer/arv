@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   resources :dosis
   resources :ordenes_fumigacion do
+    collection do
+      get :pendiente_factura
+    end
     member do
       patch :terminar
       get :pdf
@@ -9,6 +12,8 @@ Rails.application.routes.draw do
   resources :productos
   resources :lotes
   resources :estancias
+  resources :facturas, only: %i[ create ]
+  resources :facturas_pago, only: %i[ index update ]
   devise_for :users,
              path: "",
              path_names: {
