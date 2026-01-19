@@ -105,6 +105,7 @@ class OrdenesFumigacionController < ApplicationController
       Date.parse(params[:fecha_hasta])
     rescue Date::Error
       render json: { error: "fecha_desde y fecha_hasta deben ser fechas válidas" }, status: :unprocessable_entity
+      throw :abort
     end
 
     # Only allow a list of trusted parameters through.
