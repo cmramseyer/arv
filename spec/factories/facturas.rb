@@ -1,7 +1,14 @@
 FactoryBot.define do
   factory :factura do
-    orden_fumigacion { create(:orden_fumigacion, :terminada) }
     fecha_factura { Time.zone.now }
     fecha_pago { nil }
+
+    transient do
+      ordenes_fumigacion { [ create(:orden_fumigacion, :terminada) ] }
+    end
+
+    after(:create) do |factura, evaluator|
+      factura.ordenes_fumigacion << evaluator.ordenes_fumigacion
+    end
   end
 end

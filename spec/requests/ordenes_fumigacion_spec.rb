@@ -248,7 +248,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       lote = create(:lote, estancia: estancia, hectareas: 22)
       orden = create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
       orden_facturada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 23))
-      create(:factura, orden_fumigacion: orden_facturada, fecha_factura: Time.zone.now)
+      create(:factura, ordenes_fumigacion: [ orden_facturada ], fecha_factura: Time.zone.now)
       create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
       create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
 
