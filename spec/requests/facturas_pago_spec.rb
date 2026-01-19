@@ -10,6 +10,8 @@ RSpec.describe "/facturas_pago", type: :request do
       lote = create(:lote, estancia: estancia, nombre: "Lote 1", hectareas: 12.3)
       orden = create(:orden_fumigacion, :terminada, lotes: [ lote ])
       factura = create(:factura, ordenes_fumigacion: [ orden ], fecha_factura: Time.zone.local(2026, 1, 10))
+      factura_orden = factura.facturas_ordenes_fumigacion.first
+      factura_orden.update!(importe: 123.5)
 
       create(:factura, fecha_pago: Time.zone.local(2026, 1, 11))
       factura_sin_fecha = create(:factura)
@@ -25,6 +27,7 @@ RSpec.describe "/facturas_pago", type: :request do
           "ordenes_fumigacion" => [
             {
               "id" => orden.id,
+              "importe" => "123.5",
               "nombre_estancia" => "Estancia 1",
               "lotes" => [
                 {
