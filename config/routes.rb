@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   resources :lotes
   resources :estancias
   resources :facturas, only: %i[ create ]
+  resources :facturas_pago, only: %i[ index update ]
   devise_for :users,
              path: "",
              path_names: {
