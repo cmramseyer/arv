@@ -1,6 +1,6 @@
 class FacturasController < ApplicationController
   def create
-    factura = Factura.new(fecha_factura: Time.zone.now)
+    factura = Factura.new(fecha_factura: Time.zone.now, nro_factura: factura_params[:nro_factura])
     ordenes_fumigacion = factura_params[:ordenes_fumigacion]
 
     if ordenes_fumigacion.blank?
@@ -12,6 +12,7 @@ class FacturasController < ApplicationController
       ordenes_fumigacion.each do |orden|
         FacturasOrdenesFumigacion.create!(
           factura: factura,
+          nro_orden_cliente: orden[:nro_orden_cliente],
           orden_fumigacion_id: orden[:id],
           importe: orden[:importe] || 0.0
         )
@@ -28,6 +29,6 @@ class FacturasController < ApplicationController
   private
 
   def factura_params
-    params.permit(ordenes_fumigacion: %i[id importe])
+    params.permit(:nro_factura, ordenes_fumigacion: %i[id importe nro_orden_cliente])
   end
 end

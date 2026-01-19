@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_19_184526) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_19_211635) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -63,6 +63,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_19_184526) do
     t.datetime "fecha_pago"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "nro_factura"
   end
 
   create_table "facturas_ordenes_fumigacion", force: :cascade do |t|
@@ -71,6 +72,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_19_184526) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "importe", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "nro_orden_cliente"
     t.index ["factura_id"], name: "index_facturas_ordenes_fumigacion_on_factura_id"
     t.index ["orden_fumigacion_id"], name: "index_facturas_ordenes_fumigacion_on_orden_fumigacion_id", unique: true
   end
