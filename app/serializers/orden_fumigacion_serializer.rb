@@ -1,7 +1,7 @@
 class OrdenFumigacionSerializer
   include Rails.application.routes.url_helpers
 
-  FULL_SHOW_KEYS = %w[id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo datos_clima maquinista creator created_at updated_at orden_url]
+  FULL_SHOW_KEYS = %w[id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo datos_clima maquinista creator created_at updated_at orden_url orden_pdf_fecha_creacion cultivo]
 
   def initialize(orden_fumigacion)
     @orden_fumigacion = orden_fumigacion
@@ -27,7 +27,8 @@ class OrdenFumigacionSerializer
        created_at: @orden_fumigacion.created_at,
       updated_at: @orden_fumigacion.updated_at,
       orden_url: @orden_fumigacion.orden_pdf.attached? ? rails_blob_url(@orden_fumigacion.orden_pdf, only_path: false) : nil,
-      orden_pdf_fecha_creacion: @orden_fumigacion.orden_pdf&.created_at
+      orden_pdf_fecha_creacion: @orden_fumigacion.orden_pdf&.created_at,
+      cultivo: @orden_fumigacion.cultivo ? { id: @orden_fumigacion.cultivo.id, nombre: @orden_fumigacion.cultivo.nombre } : nil
     }
   end
 

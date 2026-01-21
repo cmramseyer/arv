@@ -35,7 +35,7 @@ class OrdenesFumigacionController < ApplicationController
     @orden_fumigacion = OrdenFumigacion.new(orden_fumigacion_params.merge(creator_id: current_user.id))
 
     if @orden_fumigacion.save
-      render json: @orden_fumigacion, status: :created, location: @orden_fumigacion
+      render json: OrdenFumigacionSerializer.new(@orden_fumigacion).full_show, status: :created, location: @orden_fumigacion
     else
       render json: @orden_fumigacion.errors, status: :unprocessable_entity
     end
@@ -44,7 +44,7 @@ class OrdenesFumigacionController < ApplicationController
   # PATCH/PUT /ordenes_fumigacion/1
   def update
     if @orden_fumigacion.update(orden_fumigacion_params)
-      render json: @orden_fumigacion
+      render json: OrdenFumigacionSerializer.new(@orden_fumigacion).full_show
     else
       render json: @orden_fumigacion.errors, status: :unprocessable_entity
     end
@@ -54,7 +54,7 @@ class OrdenesFumigacionController < ApplicationController
     if @orden_fumigacion.terminada?
       render json: { error: "La orden ya está terminada" }, status: :unprocessable_entity
     elsif @orden_fumigacion.update(terminar_orden_fumigacion_params.merge(estado_orden: "terminada"))
-      render json: @orden_fumigacion
+      render json: OrdenFumigacionSerializer.new(@orden_fumigacion).full_show
     else
       render json: @orden_fumigacion.errors, status: :unprocessable_entity
     end
@@ -120,6 +120,7 @@ class OrdenesFumigacionController < ApplicationController
         :estado_orden,
         :fecha_trabajo,
         :maquinista_id,
+        :cultivo_id,
         lotes: [ :id, :lote_id, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
       )
 

@@ -7,6 +7,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:valid_attributes) {
     orden = build(:orden_fumigacion)
     orden.as_json.merge!(
+      "cultivo_id" => orden.cultivo.id,
       "lotes" => orden.lotes.map do |lote|
         {
           "lote_id" => lote.id,
@@ -24,6 +25,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:valid_attributes_many_lotes) {
     orden = build(:orden_fumigacion, :many_lotes)
     orden.as_json.merge!(
+      "cultivo_id" => orden.cultivo.id,
       "lotes" => orden.lotes.map do |lote|
         {
           "lote_id" => lote.id,
@@ -41,6 +43,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:valid_attributes_temp_info) {
     orden = build(:orden_fumigacion, :temp_info)
     orden.as_json.merge!(
+      "cultivo_id" => orden.cultivo.id,
       "lotes" => []
     )
   }
@@ -86,6 +89,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         orden_fumigacion = create(:orden_fumigacion)
         get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
         expect(response).to be_successful
+        expect(json_response['cultivo']['id']).to eq(orden_fumigacion.cultivo_id)
+        expect(json_response['cultivo']['nombre']).to eq(orden_fumigacion.cultivo.nombre)
       end
     end
 
@@ -94,6 +99,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         orden_fumigacion = create(:orden_fumigacion, :many_lotes)
         get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
         expect(response).to be_successful
+        expect(json_response['cultivo']['id']).to eq(orden_fumigacion.cultivo_id)
+        expect(json_response['cultivo']['nombre']).to eq(orden_fumigacion.cultivo.nombre)
       end
     end
   end
@@ -112,6 +119,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
              params: { orden_fumigacion: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including("application/json"))
+        cultivo = Cultivo.find(valid_attributes['cultivo_id'])
+        expect(json_response['cultivo']).to eq({ 'id' => cultivo.id, 'nombre' => cultivo.nombre })
       end
     end
 
@@ -128,6 +137,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
              params: { orden_fumigacion: valid_attributes_many_lotes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including("application/json"))
+        cultivo = Cultivo.find(valid_attributes_many_lotes['cultivo_id'])
+        expect(json_response['cultivo']).to eq({ 'id' => cultivo.id, 'nombre' => cultivo.nombre })
       end
     end
 
@@ -144,6 +155,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
              params: { orden_fumigacion: valid_attributes_temp_info }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including("application/json"))
+        cultivo = Cultivo.find(valid_attributes_temp_info['cultivo_id'])
+        expect(json_response['cultivo']).to eq({ 'id' => cultivo.id, 'nombre' => cultivo.nombre })
       end
     end
 
@@ -204,6 +217,16 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including("application/json"))
+      end
+
+      it "updates cultivo_id" do
+        orden_fumigacion = create(:orden_fumigacion)
+        new_cultivo = create(:cultivo)
+        patch orden_fumigacion_url(orden_fumigacion),
+              params: { orden_fumigacion: { cultivo_id: new_cultivo.id } }, headers: valid_headers, as: :json
+        orden_fumigacion.reload
+        expect(orden_fumigacion.cultivo_id).to eq(new_cultivo.id)
+        expect(json_response['cultivo']).to eq({ 'id' => new_cultivo.id, 'nombre' => new_cultivo.nombre })
       end
     end
 

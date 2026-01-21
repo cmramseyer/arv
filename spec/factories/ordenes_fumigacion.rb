@@ -2,6 +2,7 @@ FactoryBot.define do
   factory :orden_fumigacion do
     lotes { [ create(:lote) ] }
     creator { create(:user) }
+    cultivo { create(:cultivo) }
 
     # after(:build) do |orden|
     #   orden.lotes << build(:lote) if orden.lotes.empty?

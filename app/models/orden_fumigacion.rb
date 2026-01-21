@@ -10,6 +10,7 @@ class OrdenFumigacion < ApplicationRecord
 
   belongs_to :creator, class_name: "User"
   belongs_to :maquinista, optional: true
+  belongs_to :cultivo, optional: true
   validates :creator, presence: true
   enum :estado_orden, { activa: 0, terminada: 1 }
 
