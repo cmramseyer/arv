@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:user) { create(:user) }
+  let(:maquinista) { create(:maquinista) }
 
   let(:valid_attributes) {
     orden = build(:orden_fumigacion)
@@ -53,7 +54,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   }
 
   let(:atributos_terminada) {
-    { info_trabajo: "info", maquinista: "juan", fecha_trabajo: Date.today }
+    { info_trabajo: "info", maquinista_id: maquinista.id, fecha_trabajo: Date.today }
   }
 
   let(:invalid_attributes) {
@@ -224,7 +225,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         patch terminar_orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: atributos_terminada }, headers: valid_headers, as: :json
         orden_fumigacion.reload
-        expect(orden_fumigacion.maquinista).to eq("juan")
+        expect(orden_fumigacion.maquinista.nombre).to eq(maquinista.nombre)
         expect(orden_fumigacion.info_trabajo).to eq("info")
         expect(orden_fumigacion.fecha_trabajo).to eq(Date.today)
         expect(orden_fumigacion.estado_orden).to eq("terminada")
@@ -285,7 +286,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               "lote_id" => lote.id,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
-              "maquinista" => orden.maquinista,
+              "maquinista" => orden.maquinista&.nombre,
               "orden_id" => orden.id
             }
           ]
@@ -313,14 +314,14 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               "lote_id" => lote.id,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
-              "maquinista" => orden.maquinista,
+              "maquinista" => orden.maquinista&.nombre,
               "orden_id" => orden.id
             },
             {
               "lote_id" => lote_dos.id,
               "hectareas" => lote_dos.hectareas.to_s,
               "fecha_trabajo" => "2025-11-01",
-              "maquinista" => orden_dos.maquinista,
+              "maquinista" => orden_dos.maquinista&.nombre,
               "orden_id" => orden_dos.id
             }
           ]

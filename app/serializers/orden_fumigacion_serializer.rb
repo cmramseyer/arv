@@ -22,7 +22,7 @@ class OrdenFumigacionSerializer
       info_trabajo: @orden_fumigacion.info_trabajo,
       fecha_trabajo: @orden_fumigacion.fecha_trabajo,
        datos_clima: @orden_fumigacion.datos_clima,
-       maquinista: @orden_fumigacion.maquinista,
+        maquinista: @orden_fumigacion.maquinista ? { id: @orden_fumigacion.maquinista.id, nombre: @orden_fumigacion.maquinista.nombre } : nil,
        creator: @orden_fumigacion.creator&.username,
        created_at: @orden_fumigacion.created_at,
       updated_at: @orden_fumigacion.updated_at,

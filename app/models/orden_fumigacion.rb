@@ -9,6 +9,7 @@ class OrdenFumigacion < ApplicationRecord
   has_one_attached :orden_pdf
 
   belongs_to :creator, class_name: "User"
+  belongs_to :maquinista, optional: true
   validates :creator, presence: true
   enum :estado_orden, { activa: 0, terminada: 1 }
 

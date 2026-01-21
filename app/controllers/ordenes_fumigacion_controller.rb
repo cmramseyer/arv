@@ -119,7 +119,7 @@ class OrdenesFumigacionController < ApplicationController
         :creator_id,
         :estado_orden,
         :fecha_trabajo,
-        :maquinista,
+        :maquinista_id,
         lotes: [ :id, :lote_id, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
       )
 
@@ -137,7 +137,7 @@ class OrdenesFumigacionController < ApplicationController
     end
 
     def terminar_orden_fumigacion_params
-      params.require(:orden_fumigacion).permit(:info_trabajo, :fecha_trabajo, :maquinista)
+      params.require(:orden_fumigacion).permit(:info_trabajo, :fecha_trabajo, :maquinista_id)
     end
 
     def orden_fumigacion_json

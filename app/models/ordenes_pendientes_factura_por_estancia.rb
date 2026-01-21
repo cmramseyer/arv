@@ -27,7 +27,7 @@ class OrdenesPendientesFacturaPorEstancia
         lote_id: lote.id,
         hectareas: lote.hectareas,
         fecha_trabajo: orden.fecha_trabajo,
-        maquinista: orden.maquinista,
+        maquinista: orden.maquinista&.nombre,
         orden_id: orden.id
       }
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_21_204155) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_21_215702) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -123,13 +123,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_21_204155) do
     t.text "info_trabajo"
     t.integer "estado_orden", default: 0, null: false
     t.date "fecha_trabajo"
-    t.string "maquinista"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "temp_lotes"
     t.float "temp_hectareas"
     t.integer "creator_id", null: false
+    t.integer "maquinista_id"
     t.index ["creator_id"], name: "index_ordenes_fumigacion_on_creator_id"
+    t.index ["maquinista_id"], name: "index_ordenes_fumigacion_on_maquinista_id"
   end
 
   create_table "productos", force: :cascade do |t|
@@ -163,5 +164,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_21_204155) do
   add_foreign_key "lote_ordenes_fumigacion", "lotes"
   add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"
+  add_foreign_key "ordenes_fumigacion", "maquinistas"
   add_foreign_key "ordenes_fumigacion", "users", column: "creator_id"
 end

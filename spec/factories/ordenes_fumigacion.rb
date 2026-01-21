@@ -28,7 +28,7 @@ FactoryBot.define do
       estado_orden { 'terminada' }
       info_trabajo { Faker::Lorem.words(number: 20).join(" ") }
       fecha_trabajo { Date.today }
-      maquinista { Faker::Name.name }
+       maquinista_id { create(:maquinista).id }
     end
 
     trait(:many_lotes) do

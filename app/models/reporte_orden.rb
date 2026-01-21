@@ -181,7 +181,7 @@ class ReporteOrden < Prawn::Document
     data = [
       [
         { content: "Maquinista", size: font_size, align: :center, valign: :center },
-        { content: orden.maquinista, size: font_size, align: :center, valign: :center }
+        { content: orden.maquinista&.nombre || "", size: font_size, align: :center, valign: :center }
       ],
       [
         { content: "Fecha Trabajo", size: font_size, align: :center, valign: :center },
