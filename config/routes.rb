@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   end
   resources :productos
   resources :lotes do
-    resources :adjuntos, only: %i[ destroy ]
+    resources :adjuntos, only: %i[ create destroy ]
   end
   resources :adjuntos, only: %i[ index ]
   resources :estancias

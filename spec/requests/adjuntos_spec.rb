@@ -66,4 +66,24 @@ RSpec.describe "/adjuntos", type: :request do
       expect(response).to have_http_status(:not_found)
     end
   end
+
+  describe "POST /lotes/:lote_id/adjuntos" do
+    it "creates a new adjunto for the lote" do
+      lote = create(:lote)
+
+      expect do
+        post lote_adjuntos_url(lote_id: lote.id), params: { adjunto: file_png }, headers: valid_headers
+      end.to change { lote.adjuntos.count }.by(1)
+
+      expect(response).to have_http_status(:created)
+      expect(json_response.keys).to match_array(%w[id filename url])
+      expect(json_response["filename"]).to eq("sample_file.png")
+    end
+
+    it "returns 404 if lote not found" do
+      post lote_adjuntos_url(lote_id: 99999), params: { adjunto: file_png }, headers: valid_headers
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end
