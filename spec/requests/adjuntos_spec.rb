@@ -23,7 +23,7 @@ RSpec.describe "/adjuntos", type: :request do
       expect(json_response.size).to eq(3)
       expect(json_response.first.keys).to match_array(%w[id filename url])
       expect(json_response.map { |adjunto| adjunto["filename"] }).to match_array(
-        ["sample_file.png", "sample_file.jpg", "sample_file.png"]
+        [ "sample_file.png", "sample_file.jpg", "sample_file.png" ]
       )
     end
 
@@ -32,6 +32,38 @@ RSpec.describe "/adjuntos", type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(json_response["error"]).to eq("orden_fumigacion_id es requerido")
+    end
+  end
+
+  describe "DELETE /lotes/:lote_id/adjuntos/:id" do
+    it "destroys the requested adjunto" do
+      lote = create(:lote)
+      lote.adjuntos.attach(file_png)
+      adjunto = lote.adjuntos.first
+
+      expect do
+        delete lote_adjunto_url(lote_id: lote.id, id: adjunto.id), headers: valid_headers
+      end.to change { lote.adjuntos.count }.by(-1)
+
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it "returns 404 if lote not found" do
+      lote = create(:lote)
+      lote.adjuntos.attach(file_png)
+      adjunto = lote.adjuntos.first
+
+      delete lote_adjunto_url(lote_id: 99999, id: adjunto.id), headers: valid_headers
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns 404 if adjunto not found" do
+      lote = create(:lote)
+
+      delete lote_adjunto_url(lote_id: lote.id, id: 99999), headers: valid_headers
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end
