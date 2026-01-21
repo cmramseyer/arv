@@ -1,5 +1,4 @@
 class ApplicationController < ActionController::API
-  
   before_action :authenticate_user!
 
   before_action :skip_session_storage
@@ -9,12 +8,12 @@ class ApplicationController < ActionController::API
   protected
 
   def handle_invalid_token
-    render json: { error: 'Invalid or missing CSRF token' }, status: :unauthorized
+    render json: { error: "Invalid or missing CSRF token" }, status: :unauthorized
   end
 
   def authenticate_user!
     unless current_user
-      render json: { error: 'Unauthorized' }, status: :unauthorized
+      render json: { error: "Unauthorized" }, status: :unauthorized
     end
   end
 

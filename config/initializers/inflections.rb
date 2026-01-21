@@ -23,4 +23,6 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "factura", "facturas"
   inflect.irregular "factura_orden_fumigacion", "facturas_ordenes_fumigacion"
   inflect.irregular "orden_fumigacion", "ordenes_fumigacion"
+  inflect.irregular "maquinista", "maquinistas"
+  inflect.irregular "cultivo", "cultivos"
 end

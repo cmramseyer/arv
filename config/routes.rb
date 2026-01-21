@@ -15,6 +15,8 @@ Rails.application.routes.draw do
   end
   resources :adjuntos, only: %i[ index ]
   resources :estancias
+  resources :cultivos
+  resources :maquinistas
   resources :facturas, only: %i[ create ]
   resources :facturas_pago, only: %i[ index update ]
   devise_for :users,

@@ -1,7 +1,7 @@
 class LoteSerializer
   include Rails.application.routes.url_helpers
 
-  FULL_SHOW_KEYS = %w(id nombre estancia_id nombre_estancia lat long link_mapa hectareas created_at updated_at adjuntos)
+  FULL_SHOW_KEYS = %w[id nombre estancia_id nombre_estancia lat long link_mapa hectareas created_at updated_at adjuntos]
 
   def initialize(lote)
     @lote = lote
@@ -32,7 +32,7 @@ class LoteSerializer
       long: @lote.long,
       link_mapa: @lote.link_mapa,
       hectareas: @lote.hectareas,
-      adjuntos: @lote.adjuntos.map {|m| adjunto(m)},
+      adjuntos: @lote.adjuntos.map { |m| adjunto(m) },
       created_at: @lote.created_at,
       updated_at: @lote.updated_at
     }

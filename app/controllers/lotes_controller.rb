@@ -62,6 +62,6 @@ class LotesController < ApplicationController
     end
 
     def lotes_json
-      @lotes.map {|lote| LoteSerializer.new(lote)}
+      @lotes.map { |lote| LoteSerializer.new(lote) }
     end
 end

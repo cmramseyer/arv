@@ -114,7 +114,7 @@ RSpec.describe "/lotes", type: :request do
         expect(Lote.last.nombre).to eq('9')
         expect(Lote.last.adjuntos.count).to eq(2)
         expect(json_response["adjuntos"]).not_to be_empty
-        expect(json_response["adjuntos"].map {|a| a["filename"]}).to match_array(["sample_file.png", "sample_file.jpg"])
+        expect(json_response["adjuntos"].map { |a| a["filename"] }).to match_array([ "sample_file.png", "sample_file.jpg" ])
       end
 
       it "renders a JSON response with the lote" do
