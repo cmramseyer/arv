@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_20_154000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_21_151103) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -109,7 +109,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_20_154000) do
   create_table "ordenes_fumigacion", force: :cascade do |t|
     t.text "datos_clima"
     t.text "info_trabajo"
-    t.string "creado_por"
     t.integer "estado_orden", default: 0, null: false
     t.date "fecha_trabajo"
     t.string "maquinista"
@@ -117,6 +116,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_20_154000) do
     t.datetime "updated_at", null: false
     t.string "temp_lotes"
     t.float "temp_hectareas"
+    t.integer "creator_id", null: false
+    t.index ["creator_id"], name: "index_ordenes_fumigacion_on_creator_id"
   end
 
   create_table "productos", force: :cascade do |t|
@@ -135,8 +136,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_20_154000) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "username", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -148,4 +151,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_20_154000) do
   add_foreign_key "lote_ordenes_fumigacion", "lotes"
   add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"
+  add_foreign_key "ordenes_fumigacion", "users", column: "creator_id"
 end

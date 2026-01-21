@@ -8,7 +8,8 @@ class OrdenFumigacion < ApplicationRecord
   accepts_nested_attributes_for :lote_ordenes_fumigacion, allow_destroy: true
   has_one_attached :orden_pdf
 
-  validates :creado_por, presence: true
+  belongs_to :creator, class_name: "User"
+  validates :creator, presence: true
   enum :estado_orden, { activa: 0, terminada: 1 }
 
   validates :temp_lotes, presence: true, if: :needs_temp_fields?

@@ -32,7 +32,7 @@ class OrdenesFumigacionController < ApplicationController
 
   # POST /ordenes_fumigacion
   def create
-    @orden_fumigacion = OrdenFumigacion.new(orden_fumigacion_params.merge(creado_por: current_user.email))
+    @orden_fumigacion = OrdenFumigacion.new(orden_fumigacion_params.merge(creator_id: current_user.id))
 
     if @orden_fumigacion.save
       render json: @orden_fumigacion, status: :created, location: @orden_fumigacion
@@ -116,7 +116,7 @@ class OrdenesFumigacionController < ApplicationController
         :temp_hectareas,
         :datos_clima,
         :info_trabajo,
-        :creado_por,
+        :creator_id,
         :estado_orden,
         :fecha_trabajo,
         :maquinista,

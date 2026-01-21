@@ -49,7 +49,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   }
 
   let(:new_attributes) {
-    { creado_por: "carlos" }
+    { info_trabajo: "updated info" }
   }
 
   let(:atributos_terminada) {
@@ -57,7 +57,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   }
 
   let(:invalid_attributes) {
-    { creado_por: nil }
+    { creator_id: nil }
   }
 
   let(:invalid_attributes_no_lote_no_temp_info) {
@@ -194,7 +194,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         patch orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         orden_fumigacion.reload
-        expect(orden_fumigacion.creado_por).to eq("carlos")
+        expect(orden_fumigacion.info_trabajo).to eq("updated info")
       end
 
       it "renders a JSON response with the orden_fumigacion" do

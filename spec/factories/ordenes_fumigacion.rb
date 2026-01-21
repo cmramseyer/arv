@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :orden_fumigacion do
     lotes { [ create(:lote) ] }
-    creado_por { Faker::Name.name }
+    creator { create(:user) }
 
     # after(:build) do |orden|
     #   orden.lotes << build(:lote) if orden.lotes.empty?
