@@ -67,10 +67,11 @@ class OrdenesFumigacionController < ApplicationController
 
   def pdf
     orden = OrdenFumigacion.find(params[:id])
+    attachment_ids = params.key?(:attachment_ids) ? Array(params[:attachment_ids]).map(&:to_i).uniq : nil
 
     pdf_path = Rails.root.join("storage", "orden_#{orden.id}.pdf")
     Prawn::Document.generate(pdf_path) do |pdf|
-      reporte = ReporteOrden.new(pdf, orden)
+      reporte = ReporteOrden.new(pdf, orden, attachment_ids: attachment_ids)
       reporte.generar
       reporte.pdf
     end

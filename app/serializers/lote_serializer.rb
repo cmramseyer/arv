@@ -40,6 +40,7 @@ class LoteSerializer
 
   def adjunto(adjunto)
     {
+      id: adjunto.id,
       filename: adjunto.filename.to_s,
       content_type: adjunto.content_type,
       url: rails_blob_url(adjunto, only_path: false)

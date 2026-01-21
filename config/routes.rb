@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   end
   resources :productos
   resources :lotes
+  resources :adjuntos, only: %i[ index ]
   resources :estancias
   resources :facturas, only: %i[ create ]
   resources :facturas_pago, only: %i[ index update ]
