@@ -1,12 +1,11 @@
 class OrdenFumigacion < ApplicationRecord
   has_many :lote_ordenes_fumigacion, dependent: :destroy
   has_many :lotes, through: :lote_ordenes_fumigacion
-  has_many :dosis, dependent: :destroy
   has_many :facturas_ordenes_fumigacion,
            class_name: "FacturasOrdenesFumigacion",
            dependent: :destroy
   has_many :facturas, through: :facturas_ordenes_fumigacion
-  accepts_nested_attributes_for :dosis, allow_destroy: true
+  accepts_nested_attributes_for :lote_ordenes_fumigacion, allow_destroy: true
   has_one_attached :orden_pdf
 
   validates :creado_por, presence: true
@@ -28,12 +27,16 @@ class OrdenFumigacion < ApplicationRecord
   private
 
   def needs_temp_fields?
-    lotes.empty?
+    lotes_asignados.empty?
   end
 
   def must_have_lotes_or_temp_fields
-    if lotes.empty? && (temp_lotes.blank? || temp_hectareas.blank? || temp_hectareas.to_f == 0)
+    if lotes_asignados.empty? && (temp_lotes.blank? || temp_hectareas.blank? || temp_hectareas.to_f == 0)
       errors.add(:base, "Debe tener al menos un lote, o temp_lotes y temp_hectareas deben estar completos y temp_hectareas distinto de cero.")
     end
+  end
+
+  def lotes_asignados
+    lote_ordenes_fumigacion.reject(&:marked_for_destruction?)
   end
 end

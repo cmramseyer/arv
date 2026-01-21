@@ -5,7 +5,13 @@ RSpec.describe "/dosis", type: :request do
 
   let(:valid_attributes) {
     orden = create(:orden_fumigacion)
-    build(:dosis, orden_fumigacion: orden).attributes
+    lote_orden = orden.lote_ordenes_fumigacion.first
+
+    {
+      cantidad: rand(1..100),
+      producto_id: create(:producto).id,
+      lote_orden_fumigacion_id: lote_orden.id
+    }
   }
 
   let(:invalid_attributes) {

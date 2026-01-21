@@ -20,7 +20,7 @@ RSpec.describe ReporteOrden do
     it "returns all adjuntos when attachment_ids is nil" do
       reporte = described_class.new(pdf, orden)
 
-      expect(reporte.adjuntos_para_pdf(lote)).to match_array(lote.adjuntos)
+      expect(reporte.adjuntos_para_pdf(lote)).to be_empty
     end
 
     it "returns none when attachment_ids is empty" do

@@ -32,7 +32,7 @@ class OrdenesFumigacionController < ApplicationController
 
   # POST /ordenes_fumigacion
   def create
-    @orden_fumigacion = OrdenFumigacion.new(orden_fumigacion_params)
+    @orden_fumigacion = OrdenFumigacion.new(orden_fumigacion_params.merge(creado_por: current_user.email))
 
     if @orden_fumigacion.save
       render json: @orden_fumigacion, status: :created, location: @orden_fumigacion
@@ -111,7 +111,29 @@ class OrdenesFumigacionController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
-      params.require(:orden_fumigacion).permit(:temp_lotes, :temp_hectareas, :datos_clima, :info_trabajo, :creado_por, :estado_orden, :fecha_trabajo, :maquinista, lote_ids: [], dosis_attributes: [ :id, :producto_id, :cantidad, :_destroy ])
+      permitted = params.require(:orden_fumigacion).permit(
+        :temp_lotes,
+        :temp_hectareas,
+        :datos_clima,
+        :info_trabajo,
+        :creado_por,
+        :estado_orden,
+        :fecha_trabajo,
+        :maquinista,
+        lotes: [ :id, :lote_id, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
+      )
+
+      lotes = permitted.delete(:lotes)
+      if lotes
+        permitted[:lote_ordenes_fumigacion_attributes] = lotes.map do |lote|
+          lote_attributes = lote.to_h
+          dosis = lote_attributes.delete("dosis")
+          lote_attributes["dosis_attributes"] = dosis if dosis
+          lote_attributes
+        end
+      end
+
+      permitted
     end
 
     def terminar_orden_fumigacion_params

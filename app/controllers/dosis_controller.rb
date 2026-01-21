@@ -46,6 +46,6 @@ class DosisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def dosis_params
-      params.expect(dosis: [ :producto_id, :orden_fumigacion_id, :cantidad ])
+      params.expect(dosis: [ :producto_id, :lote_orden_fumigacion_id, :cantidad ])
     end
 end

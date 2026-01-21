@@ -1,7 +1,7 @@
 class OrdenFumigacionSerializer
   include Rails.application.routes.url_helpers
 
-  FULL_SHOW_KEYS = %w(id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden dosis info_trabajo datos_clima maquinista creado_por created_at updated_at orden_url)
+  FULL_SHOW_KEYS = %w(id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo datos_clima maquinista creado_por created_at updated_at orden_url)
 
   def initialize(orden_fumigacion)
     @orden_fumigacion = orden_fumigacion
@@ -18,7 +18,7 @@ class OrdenFumigacionSerializer
       nombre_lote: nombre_lote,
       hectareas: hectareas,
       estado_orden: @orden_fumigacion.estado_orden,
-      dosis: @orden_fumigacion.dosis.map {|d| dosis(d)},
+      lotes: lotes,
       info_trabajo: @orden_fumigacion.info_trabajo,
       fecha_trabajo: @orden_fumigacion.fecha_trabajo,
       datos_clima: @orden_fumigacion.datos_clima,
@@ -41,6 +41,21 @@ class OrdenFumigacionSerializer
 
   def nombre_lote
     @orden_fumigacion.lotes.any? ? @orden_fumigacion.lotes.map(&:nombre).join(", ") : @orden_fumigacion.temp_lotes
+  end
+
+  def lotes
+    @orden_fumigacion.lote_ordenes_fumigacion.map do |lote_orden|
+      lote = lote_orden.lote
+      {
+        id: lote_orden.id,
+        lote_id: lote.id,
+        nombre: lote.nombre,
+        hectareas: lote.hectareas,
+        estancia_id: lote.estancia_id,
+        nombre_estancia: lote.estancia_nombre,
+        dosis: lote_orden.dosis.map { |d| dosis(d) }
+      }
+    end
   end
 
   def dosis(d)

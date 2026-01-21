@@ -30,7 +30,6 @@ class ReporteOrden < Prawn::Document
     pdf.canvas do
       pdf.bounding_box [ pdf.bounds.left + 20, pdf.bounds.top - 80 ], width: pdf.bounds.width - 40 do
         body
-        dosis
 
         # if params[:incluir_mapas].present?
 
@@ -102,13 +101,7 @@ class ReporteOrden < Prawn::Document
 
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
 
-    data = data_lotes
-
-    data = Array(data)
-
-    porcentaje_anchos = [ 0.4, 0.3 ]
-
-    ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+    lotes_y_dosis
 
     if orden.lotes.many?
       total_hectareas = orden.lotes.sum(&:hectareas)
@@ -125,23 +118,37 @@ class ReporteOrden < Prawn::Document
     pdf.move_down 20
   end
 
-  def data_lotes
+  def lotes_y_dosis
     if orden.lotes.present?
-      orden.lotes.map do |lote|
-        [
-          { content: "Lote #{lote.nombre}", size: font_size, align: :center, valign: :center },
-          { content: "#{lote.hectareas} has", size: font_size, align: :center, valign: :center }
-        ]
+      orden.lote_ordenes_fumigacion.each do |lote_orden|
+        data_lote(lote_orden.lote)
+        dosis_por_lote(lote_orden.dosis)
       end
     else
-      [ [
+      data = [ [
         { content: "Lotes #{orden.temp_lotes}", size: font_size, align: :center, valign: :center },
         { content: "#{orden.temp_hectareas} has", size: font_size, align: :center, valign: :center }
       ] ]
+
+      porcentaje_anchos = [ 0.4, 0.3 ]
+
+      ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+      dosis_por_lote([])
     end
   end
 
-  def dosis
+  def data_lote(lote)
+    data = [ [
+      { content: "Lote #{lote.nombre}", size: font_size, align: :center, valign: :center },
+      { content: "#{lote.hectareas} has", size: font_size, align: :center, valign: :center }
+    ] ]
+
+    porcentaje_anchos = [ 0.4, 0.3 ]
+
+    ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+  end
+
+  def dosis_por_lote(dosis)
     data = [
       [
         { content: "Dosis", size: font_size, align: :center, valign: :center }
@@ -152,7 +159,9 @@ class ReporteOrden < Prawn::Document
 
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
 
-    data = orden.dosis.map do |d|
+    return pdf.move_down 20 if dosis.blank?
+
+    data = dosis.map do |d|
       [
         { content: "#{d.producto.nombre}", size: font_size, align: :center, valign: :center },
         { content: "#{d.cantidad} #{d.producto.unidad_medida}", size: font_size, align: :center, valign: :center }

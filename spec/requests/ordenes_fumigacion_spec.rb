@@ -6,23 +6,41 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:valid_attributes) {
     orden = build(:orden_fumigacion)
     orden.as_json.merge!(
-      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") },
-      "lote_ids" => orden.lotes.map(&:id)
+      "lotes" => orden.lotes.map do |lote|
+        {
+          "lote_id" => lote.id,
+          "dosis" => [
+            {
+              "producto_id" => create(:producto).id,
+              "cantidad" => rand(1..100)
+            }
+          ]
+        }
+      end
     )
   }
 
   let(:valid_attributes_many_lotes) {
     orden = build(:orden_fumigacion, :many_lotes)
     orden.as_json.merge!(
-      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") },
-      "lote_ids" => orden.lotes.map(&:id)
+      "lotes" => orden.lotes.map do |lote|
+        {
+          "lote_id" => lote.id,
+          "dosis" => [
+            {
+              "producto_id" => create(:producto).id,
+              "cantidad" => rand(1..100)
+            }
+          ]
+        }
+      end
     )
   }
 
   let(:valid_attributes_temp_info) {
     orden = build(:orden_fumigacion, :temp_info)
     orden.as_json.merge!(
-      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") },
+      "lotes" => []
     )
   }
 
@@ -46,7 +64,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     orden = build(:orden_fumigacion, :temp_info)
     orden.temp_lotes = nil
     orden.as_json.merge!(
-      "dosis_attributes" => orden.dosis.map { |d| d.as_json.slice("producto_id", "cantidad") }
+      "temp_hectareas" => nil,
+      "lotes" => []
     )
   }
 
@@ -54,7 +73,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
   describe "GET /index" do
     it "renders a successful response" do
-      OrdenFumigacion.create! valid_attributes
+      create(:orden_fumigacion)
       get ordenes_fumigacion_url, headers: valid_headers, as: :json
       expect(response).to be_successful
     end
@@ -63,7 +82,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   describe "GET /show" do
     context "with one lote" do
       it "renders a successful response" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
         expect(response).to be_successful
       end
@@ -71,7 +90,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
     context "with many lotes" do
       it "renders a successful response" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes_many_lotes
+        orden_fumigacion = create(:orden_fumigacion, :many_lotes)
         get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
         expect(response).to be_successful
       end
@@ -171,7 +190,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       it "updates the requested orden_fumigacion" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         patch orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         orden_fumigacion.reload
@@ -179,7 +198,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       end
 
       it "renders a JSON response with the orden_fumigacion" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         patch orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
@@ -189,7 +208,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
     context "with invalid parameters" do
       it "renders a JSON response with errors for the orden_fumigacion" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         patch orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
@@ -201,7 +220,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   describe "PATCH /terminar" do
     context "with valid parameters" do
       it "termina orden_fumigacion" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         patch terminar_orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: atributos_terminada }, headers: valid_headers, as: :json
         orden_fumigacion.reload
@@ -212,7 +231,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       end
 
       it "renders a JSON response with the orden_fumigacion" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         patch terminar_orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: atributos_terminada }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
@@ -233,7 +252,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
     context "with invalid parameters" do
       it "renders a JSON response with errors for the orden_fumigacion" do
-        orden_fumigacion = OrdenFumigacion.create! valid_attributes
+        orden_fumigacion = create(:orden_fumigacion)
         patch orden_fumigacion_url(orden_fumigacion),
               params: { orden_fumigacion: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
@@ -321,7 +340,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
   describe "DELETE /destroy" do
     it "destroys the requested orden_fumigacion" do
-      orden_fumigacion = OrdenFumigacion.create! valid_attributes
+      orden_fumigacion = create(:orden_fumigacion)
       expect {
         delete orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
       }.to change(OrdenFumigacion, :count).by(-1)
