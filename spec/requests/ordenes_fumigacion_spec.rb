@@ -309,6 +309,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               "lote_id" => lote.id,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
+              "fecha_trabajo_ddmmyyyy" => "22/10/2025",
               "maquinista" => orden.maquinista&.nombre,
               "orden_id" => orden.id
             }
@@ -337,6 +338,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               "lote_id" => lote.id,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
+              "fecha_trabajo_ddmmyyyy" => "22/10/2025",
               "maquinista" => orden.maquinista&.nombre,
               "orden_id" => orden.id
             },
@@ -344,6 +346,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               "lote_id" => lote_dos.id,
               "hectareas" => lote_dos.hectareas.to_s,
               "fecha_trabajo" => "2025-11-01",
+              "fecha_trabajo_ddmmyyyy" => "01/11/2025",
               "maquinista" => orden_dos.maquinista&.nombre,
               "orden_id" => orden_dos.id
             }

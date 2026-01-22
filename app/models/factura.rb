@@ -8,6 +8,14 @@ class Factura < ApplicationRecord
 
   scope :pendientes_pago, -> { where.not(fecha_factura: nil).where(fecha_pago: nil) }
 
+  def fecha_factura_ddmmyyyy
+    fecha_factura&.strftime("%d/%m/%Y")
+  end
+
+  def fecha_pago_ddmmyyyy
+    fecha_pago&.strftime("%d/%m/%Y")
+  end
+
   def mark_as_paid!
     update!(fecha_pago: Time.zone.now)
   end

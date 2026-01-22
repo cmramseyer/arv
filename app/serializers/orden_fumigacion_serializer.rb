@@ -1,7 +1,7 @@
 class OrdenFumigacionSerializer
   include Rails.application.routes.url_helpers
 
-  FULL_SHOW_KEYS = %w[id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo datos_clima maquinista creator created_at updated_at orden_url orden_pdf_fecha_creacion cultivo]
+  FULL_SHOW_KEYS = %w[id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo fecha_trabajo_ddmmyyyy datos_clima maquinista creator created_at created_at_locale updated_at updated_at_locale orden_url orden_pdf_fecha_creacion orden_pdf_fecha_creacion_locale cultivo]
 
   def initialize(orden_fumigacion)
     @orden_fumigacion = orden_fumigacion
@@ -21,13 +21,17 @@ class OrdenFumigacionSerializer
       lotes: lotes,
       info_trabajo: @orden_fumigacion.info_trabajo,
       fecha_trabajo: @orden_fumigacion.fecha_trabajo,
-       datos_clima: @orden_fumigacion.datos_clima,
-        maquinista: @orden_fumigacion.maquinista ? { id: @orden_fumigacion.maquinista.id, nombre: @orden_fumigacion.maquinista.nombre } : nil,
-       creator: @orden_fumigacion.creator&.username,
-       created_at: @orden_fumigacion.created_at,
+      fecha_trabajo_ddmmyyyy: @orden_fumigacion.fecha_trabajo_ddmmyyyy,
+      datos_clima: @orden_fumigacion.datos_clima,
+      maquinista: @orden_fumigacion.maquinista ? { id: @orden_fumigacion.maquinista.id, nombre: @orden_fumigacion.maquinista.nombre } : nil,
+      creator: @orden_fumigacion.creator&.username,
+      created_at: @orden_fumigacion.created_at,
+      created_at_locale: @orden_fumigacion.created_at_locale,
       updated_at: @orden_fumigacion.updated_at,
+      updated_at_locale: @orden_fumigacion.updated_at_locale,
       orden_url: @orden_fumigacion.orden_pdf.attached? ? rails_blob_url(@orden_fumigacion.orden_pdf, only_path: false) : nil,
       orden_pdf_fecha_creacion: @orden_fumigacion.orden_pdf&.created_at,
+      orden_pdf_fecha_creacion_locale: @orden_fumigacion.orden_pdf_fecha_creacion_locale,
       cultivo: @orden_fumigacion.cultivo ? { id: @orden_fumigacion.cultivo.id, nombre: @orden_fumigacion.cultivo.nombre } : nil
     }
   end

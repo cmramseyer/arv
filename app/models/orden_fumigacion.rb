@@ -1,4 +1,6 @@
 class OrdenFumigacion < ApplicationRecord
+  LOCALE_TIME_ZONE = "America/Argentina/Buenos_Aires"
+
   has_many :lote_ordenes_fumigacion, dependent: :destroy
   has_many :lotes, through: :lote_ordenes_fumigacion
   has_many :facturas_ordenes_fumigacion,
@@ -27,7 +29,27 @@ class OrdenFumigacion < ApplicationRecord
     lotes.map(&:estancia_id)&.uniq&.first
   end
 
+  def fecha_trabajo_ddmmyyyy
+    fecha_trabajo&.strftime("%d/%m/%Y")
+  end
+
+  def created_at_locale
+    format_datetime_locale(created_at)
+  end
+
+  def updated_at_locale
+    format_datetime_locale(updated_at)
+  end
+
+  def orden_pdf_fecha_creacion_locale
+    format_datetime_locale(orden_pdf&.created_at)
+  end
+
   private
+
+  def format_datetime_locale(value)
+    value&.in_time_zone(LOCALE_TIME_ZONE)&.strftime("%d/%m/%Y %H:%M")
+  end
 
   def needs_temp_fields?
     lotes_asignados.empty?

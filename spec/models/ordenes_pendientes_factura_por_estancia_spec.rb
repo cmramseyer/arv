@@ -19,6 +19,7 @@ RSpec.describe OrdenesPendientesFacturaPorEstancia do
               lote_id: lote_1.id,
               hectareas: lote_1.hectareas,
               fecha_trabajo: orden.fecha_trabajo,
+              fecha_trabajo_ddmmyyyy: orden.fecha_trabajo_ddmmyyyy,
               maquinista: orden.maquinista&.nombre,
               orden_id: orden.id
             },
@@ -26,6 +27,7 @@ RSpec.describe OrdenesPendientesFacturaPorEstancia do
               lote_id: lote_2.id,
               hectareas: lote_2.hectareas,
               fecha_trabajo: orden.fecha_trabajo,
+              fecha_trabajo_ddmmyyyy: orden.fecha_trabajo_ddmmyyyy,
               maquinista: orden.maquinista&.nombre,
               orden_id: orden.id
             }

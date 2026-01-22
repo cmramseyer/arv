@@ -83,7 +83,12 @@ class OrdenesFumigacionController < ApplicationController
     )
 
     # system("lp -d #{Configuracion.get('ip_impresora')} #{pdf_path}") if Configuracion.get('ip_impresora')
-    render json: { orden_url: rails_blob_url(orden.orden_pdf, only_path: false), orden_pdf_fecha_creacion: orden.orden_pdf.created_at, message: "PDF generado e impreso correctamente" }
+    render json: {
+      orden_url: rails_blob_url(orden.orden_pdf, only_path: false),
+      orden_pdf_fecha_creacion: orden.orden_pdf.created_at,
+      orden_pdf_fecha_creacion_locale: orden.orden_pdf_fecha_creacion_locale,
+      message: "PDF generado e impreso correctamente"
+    }
   end
 
   private

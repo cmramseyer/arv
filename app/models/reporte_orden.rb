@@ -67,7 +67,7 @@ class ReporteOrden < Prawn::Document
 
     label_arv = "ARV"
     label_orden = "Orden de Trabajo ##{orden.id}"
-    fecha_creacion = orden.created_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%d/%m/%y %H:%M")
+    fecha_creacion = orden.created_at_locale
     estancia = orden.nombre_estancia
 
     # opciones/parametros
@@ -191,7 +191,7 @@ class ReporteOrden < Prawn::Document
       ],
       [
         { content: "Fecha Trabajo", size: font_size, align: :center, valign: :center },
-        { content: orden.fecha_trabajo.strftime("%d/%m/%y"), size: font_size, align: :center, valign: :center }
+        { content: orden.fecha_trabajo_ddmmyyyy || "", size: font_size, align: :center, valign: :center }
       ],
       [
         { content: "Info Trabajo", size: font_size, align: :center, valign: :center },

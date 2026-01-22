@@ -8,11 +8,15 @@ class FacturaPagoSerializer
     payload = {
       id: @factura.id,
       fecha_factura: @factura.fecha_factura,
+      fecha_factura_ddmmyyyy: @factura.fecha_factura_ddmmyyyy,
       nro_factura: @factura.nro_factura,
       ordenes_fumigacion: ordenes_fumigacion
     }
 
-    payload[:fecha_pago] = @factura.fecha_pago if @include_fecha_pago
+    if @include_fecha_pago
+      payload[:fecha_pago] = @factura.fecha_pago
+      payload[:fecha_pago_ddmmyyyy] = @factura.fecha_pago_ddmmyyyy
+    end
 
     payload
   end

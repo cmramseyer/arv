@@ -24,6 +24,7 @@ RSpec.describe "/facturas_pago", type: :request do
         {
           "id" => factura.id,
           "fecha_factura" => "2026-01-10T00:00:00.000Z",
+          "fecha_factura_ddmmyyyy" => "10/01/2026",
           "nro_factura" => "FAC-2026",
           "ordenes_fumigacion" => [
             {
