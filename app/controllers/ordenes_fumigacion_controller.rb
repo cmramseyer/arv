@@ -121,6 +121,8 @@ class OrdenesFumigacionController < ApplicationController
         :temp_hectareas,
         :datos_clima,
         :info_trabajo,
+        :sensible,
+        :comentarios,
         :creator_id,
         :estado_orden,
         :fecha_trabajo,

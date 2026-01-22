@@ -3,6 +3,8 @@ FactoryBot.define do
     lotes { [ create(:lote) ] }
     creator { create(:user) }
     cultivo { create(:cultivo) }
+    sensible { false }
+    comentarios { "Observaciones" }
 
     # after(:build) do |orden|
     #   orden.lotes << build(:lote) if orden.lotes.empty?

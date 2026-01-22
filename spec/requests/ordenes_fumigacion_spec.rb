@@ -8,6 +8,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     orden = build(:orden_fumigacion)
     orden.as_json.merge!(
       "cultivo_id" => orden.cultivo.id,
+      "sensible" => true,
+      "comentarios" => "Orden sensible",
       "lotes" => orden.lotes.map do |lote|
         {
           "lote_id" => lote.id,
@@ -26,6 +28,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     orden = build(:orden_fumigacion, :many_lotes)
     orden.as_json.merge!(
       "cultivo_id" => orden.cultivo.id,
+      "sensible" => true,
+      "comentarios" => "Orden sensible",
       "lotes" => orden.lotes.map do |lote|
         {
           "lote_id" => lote.id,
@@ -44,6 +48,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     orden = build(:orden_fumigacion, :temp_info)
     orden.as_json.merge!(
       "cultivo_id" => orden.cultivo.id,
+      "sensible" => true,
+      "comentarios" => "Orden sensible",
       "lotes" => []
     )
   }
@@ -53,7 +59,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   }
 
   let(:new_attributes) {
-    { info_trabajo: "updated info" }
+    { info_trabajo: "updated info", sensible: true, comentarios: "Actualizado" }
   }
 
   let(:atributos_terminada) {
@@ -121,6 +127,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         expect(response.content_type).to match(a_string_including("application/json"))
         cultivo = Cultivo.find(valid_attributes['cultivo_id'])
         expect(json_response['cultivo']).to eq({ 'id' => cultivo.id, 'nombre' => cultivo.nombre })
+        expect(json_response['sensible']).to eq(true)
+        expect(json_response['comentarios']).to eq("Orden sensible")
       end
     end
 
@@ -209,6 +217,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         orden_fumigacion.reload
         expect(orden_fumigacion.info_trabajo).to eq("updated info")
+        expect(orden_fumigacion.sensible).to eq(true)
+        expect(orden_fumigacion.comentarios).to eq("Actualizado")
       end
 
       it "renders a JSON response with the orden_fumigacion" do
@@ -217,6 +227,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
               params: { orden_fumigacion: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including("application/json"))
+        expect(json_response['sensible']).to eq(true)
+        expect(json_response['comentarios']).to eq("Actualizado")
       end
 
       it "updates cultivo_id" do

@@ -94,13 +94,25 @@ class ReporteOrden < Prawn::Document
     data = [
       [
         { content: nombre_estancia, size: font_size, align: :center, valign: :center },
-        { content: orden.cultivo&.nombre || "", size: font_size, align: :center, valign: :center }
+        { content: cultivo_nombre(orden), size: font_size, align: :center, valign: :center }
       ]
     ]
 
     porcentaje_anchos = [ 0.5, 0.5 ]
 
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+
+    if orden.comentarios.present?
+
+      comentarios_data = [
+        [
+          { content: "Comentarios: #{orden.comentarios}", size: font_size, align: :left, valign: :center }
+        ]
+      ]
+
+      ReporteTabla.new(pdf: pdf, porcentaje_anchos: [ 1 ], data: comentarios_data).tabla
+      pdf.move_down 10
+    end
 
     lotes_y_dosis
 
@@ -117,6 +129,13 @@ class ReporteOrden < Prawn::Document
     end
 
     pdf.move_down 20
+  end
+
+  def cultivo_nombre(orden)
+    cultivo_nombre = orden.cultivo&.nombre || ""
+    if orden.sensible? && cultivo_nombre.present?
+      cultivo_nombre = "#{cultivo_nombre} (Sensible)"
+    end
   end
 
   def lotes_y_dosis
@@ -150,17 +169,27 @@ class ReporteOrden < Prawn::Document
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
   end
 
-  def data_estancia_cultivo
+  def data_estancia_cultivo_comentarios
     data = [
       [
         { content: orden.nombre_estancia, size: font_size, align: :center, valign: :center },
-        { content: orden.cultivo&.nombre || "", size: font_size, align: :center, valign: :center }
+        { content: cultivo_nombre, size: font_size, align: :center, valign: :center }
       ]
     ]
 
     porcentaje_anchos = [ 0.5, 0.5 ]
 
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+
+    return if orden.comentarios.blank?
+
+    comentarios_data = [
+      [
+        { content: "Comentarios: #{orden.comentarios}", size: font_size, align: :left, valign: :center }
+      ]
+    ]
+
+    ReporteTabla.new(pdf: pdf, porcentaje_anchos: [ 1 ], data: comentarios_data).tabla
   end
 
   def dosis_por_lote(dosis)
