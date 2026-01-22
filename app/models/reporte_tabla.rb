@@ -13,4 +13,10 @@ class ReporteTabla < Prawn::Document
       cells.padding = 2
     end
   end
+
+  def tabla_dosis
+    @pdf.table(@data, column_widths: @ancho_columnas, position: :center) do
+      cells.padding = [ 2, 10, 2, 10 ]
+    end
+  end
 end

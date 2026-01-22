@@ -93,11 +93,12 @@ class ReporteOrden < Prawn::Document
 
     data = [
       [
-        { content: nombre_estancia, size: font_size, align: :center, valign: :center }
+        { content: nombre_estancia, size: font_size, align: :center, valign: :center },
+        { content: orden.cultivo&.nombre || "", size: font_size, align: :center, valign: :center }
       ]
     ]
 
-    porcentaje_anchos = [ 0.7 ]
+    porcentaje_anchos = [ 0.5, 0.5 ]
 
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
 
@@ -121,6 +122,7 @@ class ReporteOrden < Prawn::Document
   def lotes_y_dosis
     if orden.lotes.present?
       orden.lote_ordenes_fumigacion.each do |lote_orden|
+        pdf.move_down 10
         data_lote(lote_orden.lote)
         dosis_por_lote(lote_orden.dosis)
       end
@@ -143,36 +145,40 @@ class ReporteOrden < Prawn::Document
       { content: "#{lote.hectareas} has", size: font_size, align: :center, valign: :center }
     ] ]
 
-    porcentaje_anchos = [ 0.4, 0.3 ]
+    porcentaje_anchos = [ 0.5, 0.5 ]
+
+    ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+  end
+
+  def data_estancia_cultivo
+    data = [
+      [
+        { content: orden.nombre_estancia, size: font_size, align: :center, valign: :center },
+        { content: orden.cultivo&.nombre || "", size: font_size, align: :center, valign: :center }
+      ]
+    ]
+
+    porcentaje_anchos = [ 0.5, 0.5 ]
 
     ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
   end
 
   def dosis_por_lote(dosis)
-    data = [
-      [
-        { content: "Dosis", size: font_size, align: :center, valign: :center }
-      ]
-    ]
-
-    porcentaje_anchos = [ 0.7 ]
-
-    ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
-
     return pdf.move_down 20 if dosis.blank?
 
-    data = dosis.map do |d|
+    data = dosis.map.with_index do |d, index|
       [
-        { content: "#{d.producto.nombre}", size: font_size, align: :center, valign: :center },
-        { content: "#{d.cantidad} #{d.producto.unidad_medida}", size: font_size, align: :center, valign: :center }
+        { content: index.zero? ? "Dosis" : "", size: font_size, align: :center, valign: :center },
+        { content: "#{d.producto.nombre} ", size: font_size, align: :right, valign: :center },
+        { content: " #{d.cantidad} #{d.producto.unidad_medida}", size: font_size, align: :left, valign: :center }
       ]
     end
 
     data = Array(data)
 
-    porcentaje_anchos = [ 0.4, 0.3 ]
+    porcentaje_anchos = [ 0.15, 0.45, 0.4 ]
 
-    ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
+    ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla_dosis
 
     pdf.move_down 20
   end
