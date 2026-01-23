@@ -117,8 +117,6 @@ class OrdenesFumigacionController < ApplicationController
     # Only allow a list of trusted parameters through.
     def orden_fumigacion_params
       permitted = params.require(:orden_fumigacion).permit(
-        :temp_lotes,
-        :temp_hectareas,
         :datos_clima,
         :info_trabajo,
         :sensible,
@@ -128,7 +126,7 @@ class OrdenesFumigacionController < ApplicationController
         :fecha_trabajo,
         :maquinista_id,
         :cultivo_id,
-        lotes: [ :id, :lote_id, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
+        lotes: [ :id, :lote_id, :hectareas_reales, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
       )
 
       lotes = permitted.delete(:lotes)
@@ -137,11 +135,32 @@ class OrdenesFumigacionController < ApplicationController
           lote_attributes = lote.to_h
           dosis = lote_attributes.delete("dosis")
           lote_attributes["dosis_attributes"] = dosis if dosis
+          assign_hectareas_reales(lote_attributes)
           lote_attributes
         end
       end
 
       permitted
+    end
+
+    def assign_hectareas_reales(lote_attributes)
+      return if lote_attributes["_destroy"].to_s == "1"
+
+      hectareas_reales = lote_attributes["hectareas_reales"]
+      return if hectareas_reales.present? && hectareas_reales.to_f > 0
+
+      lote = resolve_lote(lote_attributes)
+      return if lote.nil?
+
+      lote_attributes["hectareas_reales"] = lote.hectareas
+    end
+
+    def resolve_lote(lote_attributes)
+      if lote_attributes["lote_id"].present?
+        Lote.find_by(id: lote_attributes["lote_id"])
+      elsif lote_attributes["id"].present?
+        LoteOrdenFumigacion.includes(:lote).find_by(id: lote_attributes["id"])&.lote
+      end
     end
 
     def terminar_orden_fumigacion_params

@@ -21,7 +21,7 @@ class Estadistica
       .joins(:facturas)
       .where.not(facturas: { fecha_pago: nil })
       .where(fecha_trabajo: fecha_desde..fecha_hasta)
-      .includes({ lotes: :estancia }, :maquinista, :cultivo)
+      .includes({ lote_ordenes_fumigacion: { lote: :estancia } }, :maquinista, :cultivo)
       .distinct
   end
 
@@ -29,10 +29,10 @@ class Estadistica
     totales = Hash.new { |hash, key| hash[key] = 0.to_d }
 
     ordenes.each do |orden|
-      next if orden.lotes.empty?
+      next if orden.lote_ordenes_fumigacion.empty?
 
-      orden.lotes.each do |lote|
-        totales[lote.estancia.nombre] += lote.hectareas
+      orden.lote_ordenes_fumigacion.each do |lote_orden|
+        totales[lote_orden.estancia_nombre] += lote_orden.hectareas
       end
     end
 
@@ -45,7 +45,7 @@ class Estadistica
     totales = Hash.new { |hash, key| hash[key] = 0.to_d }
 
     ordenes.each do |orden|
-      next if orden.lotes.empty?
+      next if orden.lote_ordenes_fumigacion.empty?
 
       nombre = orden.maquinista&.nombre || "Sin clasificar"
       totales[nombre] += orden_hectareas(orden)
@@ -60,7 +60,7 @@ class Estadistica
     totales = Hash.new { |hash, key| hash[key] = 0.to_d }
 
     ordenes.each do |orden|
-      next if orden.lotes.empty?
+      next if orden.lote_ordenes_fumigacion.empty?
 
       nombre = orden.cultivo&.nombre || "Sin clasificar"
       totales[nombre] += orden_hectareas(orden)
@@ -72,6 +72,6 @@ class Estadistica
   end
 
   def orden_hectareas(orden)
-    orden.lotes.sum(&:hectareas)
+    orden.lote_ordenes_fumigacion.sum(&:hectareas)
   end
 end

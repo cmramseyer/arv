@@ -16,10 +16,7 @@ class OrdenFumigacion < ApplicationRecord
   validates :creator, presence: true
   enum :estado_orden, { activa: 0, terminada: 1 }
 
-  validates :temp_lotes, presence: true, if: :needs_temp_fields?
-  validates :temp_hectareas, presence: true, numericality: { greater_than: 0 }, if: :needs_temp_fields?
-
-  validate :must_have_lotes_or_temp_fields
+  validate :must_have_lotes
 
   def nombre_estancia
     lotes.map(&:estancia_nombre).uniq.join(", ")
@@ -51,14 +48,10 @@ class OrdenFumigacion < ApplicationRecord
     value&.in_time_zone(LOCALE_TIME_ZONE)&.strftime("%d/%m/%Y %H:%M")
   end
 
-  def needs_temp_fields?
-    lotes_asignados.empty?
-  end
+  def must_have_lotes
+    return if lotes_asignados.any?
 
-  def must_have_lotes_or_temp_fields
-    if lotes_asignados.empty? && (temp_lotes.blank? || temp_hectareas.blank? || temp_hectareas.to_f == 0)
-      errors.add(:base, "Debe tener al menos un lote, o temp_lotes y temp_hectareas deben estar completos y temp_hectareas distinto de cero.")
-    end
+    errors.add(:base, "Debe tener al menos un lote.")
   end
 
   def lotes_asignados

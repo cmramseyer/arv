@@ -89,7 +89,7 @@ class ReporteOrden < Prawn::Document
   end
 
   def body
-    nombre_estancia = orden.lotes.present? ? orden.nombre_estancia : "Estancia Temporal"
+    nombre_estancia = orden.nombre_estancia
 
     data = [
       [
@@ -117,7 +117,7 @@ class ReporteOrden < Prawn::Document
     lotes_y_dosis
 
     if orden.lotes.many?
-      total_hectareas = orden.lotes.sum(&:hectareas)
+      total_hectareas = orden.lote_ordenes_fumigacion.sum(&:hectareas)
       data = [ [
         { content: "Total", size: font_size, align: :center, valign: :center },
         { content: "#{total_hectareas} has", size: font_size, align: :center, valign: :center }
@@ -139,29 +139,19 @@ class ReporteOrden < Prawn::Document
   end
 
   def lotes_y_dosis
-    if orden.lotes.present?
-      orden.lote_ordenes_fumigacion.each do |lote_orden|
-        pdf.move_down 10
-        data_lote(lote_orden.lote)
-        dosis_por_lote(lote_orden.dosis)
-      end
-    else
-      data = [ [
-        { content: "Lotes #{orden.temp_lotes}", size: font_size, align: :center, valign: :center },
-        { content: "#{orden.temp_hectareas} has", size: font_size, align: :center, valign: :center }
-      ] ]
+    return if orden.lote_ordenes_fumigacion.blank?
 
-      porcentaje_anchos = [ 0.4, 0.3 ]
-
-      ReporteTabla.new(pdf: pdf, porcentaje_anchos: porcentaje_anchos, data: data).tabla
-      dosis_por_lote([])
+    orden.lote_ordenes_fumigacion.each do |lote_orden|
+      pdf.move_down 10
+      data_lote(lote_orden)
+      dosis_por_lote(lote_orden.dosis)
     end
   end
 
-  def data_lote(lote)
+  def data_lote(lote_orden)
     data = [ [
-      { content: "Lote #{lote.nombre}", size: font_size, align: :center, valign: :center },
-      { content: "#{lote.hectareas} has", size: font_size, align: :center, valign: :center }
+      { content: "Lote #{lote_orden.nombre}", size: font_size, align: :center, valign: :center },
+      { content: "#{lote_orden.hectareas} has", size: font_size, align: :center, valign: :center }
     ] ]
 
     porcentaje_anchos = [ 0.5, 0.5 ]

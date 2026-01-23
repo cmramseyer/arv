@@ -22,10 +22,10 @@ class OrdenesPendientesFacturaPorEstancia
   attr_reader :ordenes
 
   def datos_por_orden(orden)
-    orden.lotes.map do |lote|
+    orden.lote_ordenes_fumigacion.map do |lote_orden|
       {
-        lote_id: lote.id,
-        hectareas: lote.hectareas,
+        lote_id: lote_orden.lote_id,
+        hectareas: lote_orden.hectareas,
         fecha_trabajo: orden.fecha_trabajo,
         fecha_trabajo_ddmmyyyy: orden.fecha_trabajo_ddmmyyyy,
         maquinista: orden.maquinista&.nombre,

@@ -48,10 +48,10 @@ class FacturaPagoSerializer
   end
 
   def lotes(orden)
-    orden.lotes.map do |lote|
+    orden.lote_ordenes_fumigacion.map do |lote_orden|
       {
-        nombre: lote.nombre,
-        hectareas: lote.hectareas
+        nombre: lote_orden.nombre,
+        hectareas: lote_orden.hectareas
       }
     end
   end

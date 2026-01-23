@@ -18,11 +18,6 @@ FactoryBot.define do
       end
     end
 
-    trait(:temp_info) do
-      temp_lotes { "temp1" }
-      temp_hectareas { 12.3 }
-    end
-
     trait(:activa) do
       estado_orden { 'activa' }
     end

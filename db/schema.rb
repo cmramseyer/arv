@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_22_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_23_120010) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -96,6 +96,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_120000) do
     t.integer "orden_fumigacion_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "hectareas_reales", precision: 10, scale: 2
     t.index ["lote_id"], name: "index_lote_ordenes_fumigacion_on_lote_id"
     t.index ["orden_fumigacion_id"], name: "index_lote_ordenes_fumigacion_on_orden_fumigacion_id"
   end
@@ -125,8 +126,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_120000) do
     t.date "fecha_trabajo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "temp_lotes"
-    t.float "temp_hectareas"
     t.integer "creator_id", null: false
     t.integer "maquinista_id"
     t.integer "cultivo_id"

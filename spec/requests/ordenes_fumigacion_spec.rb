@@ -24,6 +24,27 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     )
   }
 
+  let(:valid_attributes_with_hectareas_reales) {
+    orden = build(:orden_fumigacion)
+    orden.as_json.merge!(
+      "cultivo_id" => orden.cultivo.id,
+      "sensible" => true,
+      "comentarios" => "Orden sensible",
+      "lotes" => orden.lotes.map do |lote|
+        {
+          "lote_id" => lote.id,
+          "hectareas_reales" => 10.5,
+          "dosis" => [
+            {
+              "producto_id" => create(:producto).id,
+              "cantidad" => rand(1..100)
+            }
+          ]
+        }
+      end
+    )
+  }
+
   let(:valid_attributes_many_lotes) {
     orden = build(:orden_fumigacion, :many_lotes)
     orden.as_json.merge!(
@@ -44,16 +65,6 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     )
   }
 
-  let(:valid_attributes_temp_info) {
-    orden = build(:orden_fumigacion, :temp_info)
-    orden.as_json.merge!(
-      "cultivo_id" => orden.cultivo.id,
-      "sensible" => true,
-      "comentarios" => "Orden sensible",
-      "lotes" => []
-    )
-  }
-
   let(:orden_sin_dosis) {
     build(:orden_fumigacion).as_json
   }
@@ -70,11 +81,12 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     { creator_id: nil }
   }
 
-  let(:invalid_attributes_no_lote_no_temp_info) {
-    orden = build(:orden_fumigacion, :temp_info)
-    orden.temp_lotes = nil
+  let(:invalid_attributes_no_lotes) {
+    orden = build(:orden_fumigacion, lotes: [])
     orden.as_json.merge!(
-      "temp_hectareas" => nil,
+      "cultivo_id" => orden.cultivo.id,
+      "sensible" => true,
+      "comentarios" => "Orden sensible",
       "lotes" => []
     )
   }
@@ -130,6 +142,20 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         expect(json_response['sensible']).to eq(true)
         expect(json_response['comentarios']).to eq("Orden sensible")
       end
+
+      it "asigna hectareas_reales por defecto" do
+        post ordenes_fumigacion_url,
+             params: { orden_fumigacion: valid_attributes }, headers: valid_headers, as: :json
+        lote_orden = LoteOrdenFumigacion.last
+        expect(lote_orden.hectareas_reales.to_f).to eq(lote_orden.lote.hectareas.to_f)
+      end
+
+      it "respeta hectareas_reales provistas" do
+        post ordenes_fumigacion_url,
+             params: { orden_fumigacion: valid_attributes_with_hectareas_reales }, headers: valid_headers, as: :json
+        lote_orden = LoteOrdenFumigacion.last
+        expect(lote_orden.hectareas_reales.to_f).to eq(10.5)
+      end
     end
 
     context "with valid parameters, many lotes" do
@@ -150,37 +176,19 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       end
     end
 
-    context "with valid parameters, temp info" do
+    context "with invalid parameters, no lotes" do
       it "creates a new OrdenFumigacion" do
         expect {
           post ordenes_fumigacion_url,
-               params: { orden_fumigacion: valid_attributes_temp_info }, headers: valid_headers, as: :json
-        }.to change(OrdenFumigacion, :count).by(1)
-      end
-
-      it "renders a JSON response with the new orden_fumigacion" do
-        post ordenes_fumigacion_url,
-             params: { orden_fumigacion: valid_attributes_temp_info }, headers: valid_headers, as: :json
-        expect(response).to have_http_status(:created)
-        expect(response.content_type).to match(a_string_including("application/json"))
-        cultivo = Cultivo.find(valid_attributes_temp_info['cultivo_id'])
-        expect(json_response['cultivo']).to eq({ 'id' => cultivo.id, 'nombre' => cultivo.nombre })
-      end
-    end
-
-    context "with invalid parameters, no lotes, no temp_lotes info" do
-      it "creates a new OrdenFumigacion" do
-        expect {
-          post ordenes_fumigacion_url,
-               params: { orden_fumigacion: invalid_attributes_no_lote_no_temp_info }, headers: valid_headers, as: :json
+               params: { orden_fumigacion: invalid_attributes_no_lotes }, headers: valid_headers, as: :json
         }.to change(OrdenFumigacion, :count).by(0)
       end
 
       it "renders a JSON response with the new orden_fumigacion" do
         post ordenes_fumigacion_url,
-             params: { orden_fumigacion: invalid_attributes_no_lote_no_temp_info }, headers: valid_headers, as: :json
+             params: { orden_fumigacion: invalid_attributes_no_lotes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)["base"][0]).to eq("Debe tener al menos un lote, o temp_lotes y temp_hectareas deben estar completos y temp_hectareas distinto de cero.")
+        expect(JSON.parse(response.body)["base"][0]).to eq("Debe tener al menos un lote.")
         expect(response.content_type).to match(a_string_including("application/json"))
       end
     end

@@ -1,7 +1,7 @@
 class OrdenFumigacionSerializer
   include Rails.application.routes.url_helpers
 
-  FULL_SHOW_KEYS = %w[id temp_lotes temp_hectareas estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo fecha_trabajo_ddmmyyyy datos_clima sensible comentarios maquinista creator created_at created_at_locale updated_at updated_at_locale orden_url orden_pdf_fecha_creacion orden_pdf_fecha_creacion_locale cultivo]
+  FULL_SHOW_KEYS = %w[id estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo fecha_trabajo_ddmmyyyy datos_clima sensible comentarios maquinista creator created_at created_at_locale updated_at updated_at_locale orden_url orden_pdf_fecha_creacion orden_pdf_fecha_creacion_locale cultivo]
 
   def initialize(orden_fumigacion)
     @orden_fumigacion = orden_fumigacion
@@ -10,8 +10,6 @@ class OrdenFumigacionSerializer
   def full_show
     {
       id: @orden_fumigacion.id,
-      temp_lotes: @orden_fumigacion.temp_lotes,
-      temp_hectareas: @orden_fumigacion.temp_hectareas,
       estancia_id: @orden_fumigacion.estancia_id,
       nombre_estancia: @orden_fumigacion.nombre_estancia,
       lotes_ids: @orden_fumigacion.lotes.map(&:id),
@@ -39,7 +37,7 @@ class OrdenFumigacionSerializer
   end
 
   def hectareas
-    @orden_fumigacion.lotes.any? ? @orden_fumigacion.lotes.sum(&:hectareas) : @orden_fumigacion.temp_hectareas
+    @orden_fumigacion.lote_ordenes_fumigacion.sum(&:hectareas)
   end
 
   def nombre_estancia
@@ -47,19 +45,18 @@ class OrdenFumigacionSerializer
   end
 
   def nombre_lote
-    @orden_fumigacion.lotes.any? ? @orden_fumigacion.lotes.map(&:nombre).join(", ") : @orden_fumigacion.temp_lotes
+    @orden_fumigacion.lote_ordenes_fumigacion.map(&:nombre).join(", ")
   end
 
   def lotes
     @orden_fumigacion.lote_ordenes_fumigacion.map do |lote_orden|
-      lote = lote_orden.lote
       {
         id: lote_orden.id,
-        lote_id: lote.id,
-        nombre: lote.nombre,
-        hectareas: lote.hectareas,
-        estancia_id: lote.estancia_id,
-        nombre_estancia: lote.estancia_nombre,
+        lote_id: lote_orden.lote_id,
+        nombre: lote_orden.nombre,
+        hectareas: lote_orden.hectareas,
+        estancia_id: lote_orden.estancia_id,
+        nombre_estancia: lote_orden.estancia_nombre,
         dosis: lote_orden.dosis.map { |d| dosis(d) }
       }
     end
