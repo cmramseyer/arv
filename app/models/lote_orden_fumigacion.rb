@@ -5,29 +5,8 @@ class LoteOrdenFumigacion < ApplicationRecord
 
   accepts_nested_attributes_for :dosis, allow_destroy: true
 
-  def nombre
-    lote.nombre
-  end
-
-  def lat
-    lote.lat
-  end
-
-  def long
-    lote.long
-  end
-
-  def link_mapa
-    lote.link_mapa
-  end
-
-  def estancia_id
-    lote.estancia_id
-  end
-
-  def estancia_nombre
-    lote.estancia_nombre
-  end
+  delegate :estancia_id, :estancia_nombre, :nombre, to: :lote, allow_nil: false
+  delegate :long, :lat, :link_mapa, to: :lote, allow_nil: true
 
   def hectareas
     return hectareas_reales if hectareas_reales.present? && hectareas_reales.to_f > 0
