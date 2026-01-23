@@ -25,4 +25,5 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "orden_fumigacion", "ordenes_fumigacion"
   inflect.irregular "maquinista", "maquinistas"
   inflect.irregular "cultivo", "cultivos"
+  inflect.irregular "estadistica", "estadisticas"
 end
