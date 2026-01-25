@@ -105,6 +105,27 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       expect(response).to be_successful
     end
 
+    it "includes facturas data when present" do
+      orden_fumigacion = create(:orden_fumigacion)
+      fecha_factura = Time.zone.local(2026, 1, 10)
+      fecha_pago = Time.zone.local(2026, 1, 12)
+      factura = create(:factura, ordenes_fumigacion: [], fecha_factura: fecha_factura, fecha_pago: fecha_pago, nro_factura: "FAC-2026")
+      create(:facturas_ordenes_fumigacion, orden_fumigacion: orden_fumigacion, factura: factura, nro_orden_cliente: "ORD-100")
+
+      get ordenes_fumigacion_url, headers: valid_headers
+
+      orden_response = json_response.find { |item| item["id"] == orden_fumigacion.id }
+
+      expect(orden_response["facturas"]).to eq([
+        {
+          "nro_factura" => "FAC-2026",
+          "nro_orden_cliente" => "ORD-100",
+          "fecha_factura" => fecha_factura.iso8601(3),
+          "fecha_pago" => fecha_pago.iso8601(3)
+        }
+      ])
+    end
+
     it "filters by cultivo_id" do
       cultivo = create(:cultivo)
       orden_match = create(:orden_fumigacion, cultivo: cultivo)
@@ -219,6 +240,25 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         expect(response).to be_successful
         expect(json_response['cultivo']['id']).to eq(orden_fumigacion.cultivo_id)
         expect(json_response['cultivo']['nombre']).to eq(orden_fumigacion.cultivo.nombre)
+      end
+
+      it "includes facturas data when present" do
+        orden_fumigacion = create(:orden_fumigacion)
+        fecha_factura = Time.zone.local(2026, 1, 10)
+        fecha_pago = Time.zone.local(2026, 1, 12)
+        factura = create(:factura, ordenes_fumigacion: [], fecha_factura: fecha_factura, fecha_pago: fecha_pago, nro_factura: "FAC-2026")
+        create(:facturas_ordenes_fumigacion, orden_fumigacion: orden_fumigacion, factura: factura, nro_orden_cliente: "ORD-100")
+
+        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers
+
+        expect(json_response["facturas"]).to eq([
+          {
+            "nro_factura" => "FAC-2026",
+            "nro_orden_cliente" => "ORD-100",
+            "fecha_factura" => fecha_factura.iso8601(3),
+            "fecha_pago" => fecha_pago.iso8601(3)
+          }
+        ])
       end
     end
 

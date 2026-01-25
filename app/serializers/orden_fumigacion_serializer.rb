@@ -1,7 +1,7 @@
 class OrdenFumigacionSerializer
   include Rails.application.routes.url_helpers
 
-  FULL_SHOW_KEYS = %w[id estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo fecha_trabajo_ddmmyyyy datos_clima sensible comentarios maquinista creator created_at created_at_locale updated_at updated_at_locale orden_url orden_pdf_fecha_creacion orden_pdf_fecha_creacion_locale cultivo]
+  FULL_SHOW_KEYS = %w[id estancia_id nombre_estancia lotes_ids nombre_lote hectareas estado_orden lotes info_trabajo fecha_trabajo fecha_trabajo_ddmmyyyy datos_clima sensible comentarios maquinista creator created_at created_at_locale updated_at updated_at_locale orden_url orden_pdf_fecha_creacion orden_pdf_fecha_creacion_locale cultivo facturas]
 
   def initialize(orden_fumigacion)
     @orden_fumigacion = orden_fumigacion
@@ -32,7 +32,8 @@ class OrdenFumigacionSerializer
       orden_url: @orden_fumigacion.orden_pdf.attached? ? rails_blob_url(@orden_fumigacion.orden_pdf, only_path: false) : nil,
       orden_pdf_fecha_creacion: @orden_fumigacion.orden_pdf&.created_at,
       orden_pdf_fecha_creacion_locale: @orden_fumigacion.orden_pdf_fecha_creacion_locale,
-      cultivo: @orden_fumigacion.cultivo ? { id: @orden_fumigacion.cultivo.id, nombre: @orden_fumigacion.cultivo.nombre } : nil
+      cultivo: @orden_fumigacion.cultivo ? { id: @orden_fumigacion.cultivo.id, nombre: @orden_fumigacion.cultivo.nombre } : nil,
+      facturas: facturas
     }
   end
 
@@ -70,5 +71,17 @@ class OrdenFumigacionSerializer
       cantidad: d.cantidad,
       unidad_medida: d.producto.unidad_medida
     }
+  end
+
+  def facturas
+    @orden_fumigacion.facturas_ordenes_fumigacion.map do |factura_orden|
+      factura = factura_orden.factura
+      {
+        nro_factura: factura&.nro_factura,
+        nro_orden_cliente: factura_orden.nro_orden_cliente,
+        fecha_factura: factura&.fecha_factura,
+        fecha_pago: factura&.fecha_pago
+      }
+    end
   end
 end
