@@ -4,12 +4,36 @@ class OrdenesFumigacionController < ApplicationController
 
   # GET /ordenes_fumigacion
   def index
-    if estado_params?
-      @ordenes_fumigacion = OrdenFumigacion.where(estado_orden: params[:estado])
-    else
-      @ordenes_fumigacion = OrdenFumigacion.all
+    @ordenes_fumigacion = OrdenFumigacion.all
+
+    @ordenes_fumigacion = @ordenes_fumigacion.where(estado_orden: params[:estado]) if estado_params?
+    @ordenes_fumigacion = @ordenes_fumigacion.where(cultivo_id: params[:cultivo_id]) if params[:cultivo_id].present?
+    @ordenes_fumigacion = @ordenes_fumigacion.where(maquinista_id: params[:maquinista_id]) if params[:maquinista_id].present?
+    @ordenes_fumigacion = @ordenes_fumigacion.where("fecha_trabajo >= ?", params[:fecha_desde]) if params[:fecha_desde].present?
+    @ordenes_fumigacion = @ordenes_fumigacion.where("fecha_trabajo <= ?", params[:fecha_hasta]) if params[:fecha_hasta].present?
+    @ordenes_fumigacion = @ordenes_fumigacion.joins(:lote_ordenes_fumigacion)
+      .where(lote_ordenes_fumigacion: { lote_id: params[:lote_id] }) if params[:lote_id].present?
+    @ordenes_fumigacion = @ordenes_fumigacion.joins(lote_ordenes_fumigacion: :lote)
+      .where(lotes: { estancia_id: params[:estancia_id] }) if params[:estancia_id].present?
+    if params[:nro_orden_cliente].present?
+      @ordenes_fumigacion = filter_case_insensitive(
+        @ordenes_fumigacion.joins(:facturas_ordenes_fumigacion),
+        "facturas_ordenes_fumigacion.nro_orden_cliente",
+        params[:nro_orden_cliente]
+      )
     end
 
+    if params[:nro_factura].present?
+      @ordenes_fumigacion = filter_case_insensitive(
+        @ordenes_fumigacion.joins(:facturas),
+        "facturas.nro_factura",
+        params[:nro_factura]
+      )
+    end
+    @ordenes_fumigacion = @ordenes_fumigacion
+      .includes(:maquinista, :cultivo, lote_ordenes_fumigacion: { lote: :estancia })
+      .distinct
+      .order(id: :desc)
 
     render json: ordenes_fumigacion_json.map(&:full_show)
   end
@@ -177,5 +201,15 @@ class OrdenesFumigacionController < ApplicationController
 
     def estado_params?
       [ "activa", "terminada" ].include?(params[:estado])
+    end
+
+    def filter_case_insensitive(scope, column, value)
+      pattern = "%#{value.strip}%"
+
+      if ActiveRecord::Base.connection.adapter_name.match?(/sqlite/i)
+        scope.where("LOWER(#{column}) LIKE ?", pattern.downcase)
+      else
+        scope.where("#{column} ILIKE ?", pattern)
+      end
     end
 end

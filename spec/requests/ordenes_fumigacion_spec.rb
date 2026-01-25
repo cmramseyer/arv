@@ -4,6 +4,11 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:user) { create(:user) }
   let(:maquinista) { create(:maquinista) }
 
+  def response_ids
+    expect(response).to have_http_status(:ok), response.body
+    Array.wrap(json_response).map { |item| item["id"] }
+  end
+
   let(:valid_attributes) {
     orden = build(:orden_fumigacion)
     orden.as_json.merge!(
@@ -96,8 +101,113 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
   describe "GET /index" do
     it "renders a successful response" do
       create(:orden_fumigacion)
-      get ordenes_fumigacion_url, headers: valid_headers, as: :json
+      get ordenes_fumigacion_url, headers: valid_headers
       expect(response).to be_successful
+    end
+
+    it "filters by cultivo_id" do
+      cultivo = create(:cultivo)
+      orden_match = create(:orden_fumigacion, cultivo: cultivo)
+      create(:orden_fumigacion)
+
+      get ordenes_fumigacion_url, params: { cultivo_id: cultivo.id }, headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "filters by maquinista_id" do
+      maquinista_match = create(:maquinista)
+      orden_match = create(:orden_fumigacion, maquinista: maquinista_match)
+      create(:orden_fumigacion, maquinista: create(:maquinista))
+
+      get ordenes_fumigacion_url, params: { maquinista_id: maquinista_match.id }, headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "filters by cultivo_id and maquinista_id" do
+      cultivo_match = create(:cultivo)
+      maquinista_match = create(:maquinista)
+      orden_match = create(:orden_fumigacion, cultivo: cultivo_match, maquinista: maquinista_match)
+      create(:orden_fumigacion, cultivo: cultivo_match, maquinista: create(:maquinista))
+      create(:orden_fumigacion, cultivo: create(:cultivo), maquinista: maquinista_match)
+
+      get ordenes_fumigacion_url,
+          params: { cultivo_id: cultivo_match.id, maquinista_id: maquinista_match.id },
+          headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "filters by fecha_desde" do
+      orden_match = create(:orden_fumigacion, fecha_trabajo: Date.new(2099, 1, 10))
+      orden_no_match = create(:orden_fumigacion, fecha_trabajo: Date.new(2099, 1, 5))
+
+      get ordenes_fumigacion_url, params: { fecha_desde: "2099-01-08" }, headers: valid_headers
+
+      expect(response_ids).to include(orden_match.id)
+      expect(response_ids).not_to include(orden_no_match.id)
+    end
+
+    it "filters by fecha_hasta" do
+      orden_match = create(:orden_fumigacion, fecha_trabajo: Date.new(1900, 1, 5))
+      orden_no_match = create(:orden_fumigacion, fecha_trabajo: Date.new(1900, 1, 10))
+
+      get ordenes_fumigacion_url, params: { fecha_hasta: "1900-01-08" }, headers: valid_headers
+
+      expect(response_ids).to include(orden_match.id)
+      expect(response_ids).not_to include(orden_no_match.id)
+    end
+
+    it "filters by lote_id" do
+      lote_match = create(:lote)
+      orden_match = create(:orden_fumigacion, lotes: [lote_match])
+      create(:orden_fumigacion, lotes: [create(:lote)])
+
+      get ordenes_fumigacion_url, params: { lote_id: lote_match.id }, headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "filters by estancia_id" do
+      estancia_match = create(:estancia)
+      lote_match = create(:lote, estancia: estancia_match)
+      orden_match = create(:orden_fumigacion, lotes: [lote_match])
+      create(:orden_fumigacion, lotes: [create(:lote)])
+
+      get ordenes_fumigacion_url, params: { estancia_id: estancia_match.id }, headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "filters by nro_orden_cliente with partial match" do
+      orden_match = create(:orden_fumigacion)
+      factura = create(:factura, ordenes_fumigacion: [])
+      create(:facturas_ordenes_fumigacion, orden_fumigacion: orden_match, factura: factura, nro_orden_cliente: "CLIENTE-123")
+      create(:facturas_ordenes_fumigacion, orden_fumigacion: create(:orden_fumigacion), factura: create(:factura, ordenes_fumigacion: []), nro_orden_cliente: "OTRO-999")
+
+      get ordenes_fumigacion_url, params: { nro_orden_cliente: "ente-12" }, headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "filters by nro_factura with partial match" do
+      orden_match = create(:orden_fumigacion)
+      create(:factura, ordenes_fumigacion: [orden_match], nro_factura: "FAC-001-TEST")
+      create(:factura, ordenes_fumigacion: [create(:orden_fumigacion)], nro_factura: "FAC-999")
+
+      get ordenes_fumigacion_url, params: { nro_factura: "001" }, headers: valid_headers
+
+      expect(response_ids).to eq([orden_match.id])
+    end
+
+    it "orders results by id desc" do
+      first = create(:orden_fumigacion)
+      second = create(:orden_fumigacion)
+
+      get ordenes_fumigacion_url, headers: valid_headers
+
+      expect(response_ids.first(2)).to eq([second.id, first.id])
     end
   end
 
@@ -105,7 +215,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     context "with one lote" do
       it "renders a successful response" do
         orden_fumigacion = create(:orden_fumigacion)
-        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
+        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers
         expect(response).to be_successful
         expect(json_response['cultivo']['id']).to eq(orden_fumigacion.cultivo_id)
         expect(json_response['cultivo']['nombre']).to eq(orden_fumigacion.cultivo.nombre)
@@ -115,7 +225,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     context "with many lotes" do
       it "renders a successful response" do
         orden_fumigacion = create(:orden_fumigacion, :many_lotes)
-        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers, as: :json
+        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers
         expect(response).to be_successful
         expect(json_response['cultivo']['id']).to eq(orden_fumigacion.cultivo_id)
         expect(json_response['cultivo']['nombre']).to eq(orden_fumigacion.cultivo.nombre)
