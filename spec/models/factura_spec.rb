@@ -31,14 +31,4 @@ RSpec.describe Factura, type: :model do
     end
   end
 
-  describe "#mark_as_paid!" do
-    it "sets fecha_pago" do
-      factura = create(:factura, fecha_pago: nil)
-      now = Time.zone.now
-
-      factura.mark_as_paid!
-
-      expect(factura.reload.fecha_pago).to be >= now
-    end
-  end
 end

@@ -35,6 +35,8 @@ class OrdenesFumigacionController < ApplicationController
       .distinct
       .order(id: :desc)
 
+    puts ordenes_fumigacion_json.map(&:full_show)
+
     render json: ordenes_fumigacion_json.map(&:full_show)
   end
 

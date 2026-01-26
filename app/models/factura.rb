@@ -15,8 +15,4 @@ class Factura < ApplicationRecord
   def fecha_pago_ddmmyyyy
     fecha_pago&.strftime("%d/%m/%Y")
   end
-
-  def mark_as_paid!
-    update!(fecha_pago: Time.zone.now)
-  end
 end

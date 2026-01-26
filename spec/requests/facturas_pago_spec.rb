@@ -46,15 +46,4 @@ RSpec.describe "/facturas_pago", type: :request do
     end
   end
 
-  describe "PATCH /update" do
-    it "marks factura as paid" do
-      factura = create(:factura, fecha_pago: nil)
-      now = Time.zone.now
-
-      patch facturas_pago_url(factura), headers: valid_headers
-
-      expect(response).to have_http_status(:no_content)
-      expect(factura.reload.fecha_pago).to be >= now
-    end
-  end
 end

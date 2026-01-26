@@ -1,7 +1,6 @@
 class FacturaPagoSerializer
-  def initialize(factura, include_fecha_pago: false)
+  def initialize(factura)
     @factura = factura
-    @include_fecha_pago = include_fecha_pago
   end
 
   def full_show
@@ -12,11 +11,6 @@ class FacturaPagoSerializer
       nro_factura: @factura.nro_factura,
       ordenes_fumigacion: ordenes_fumigacion
     }
-
-    if @include_fecha_pago
-      payload[:fecha_pago] = @factura.fecha_pago
-      payload[:fecha_pago_ddmmyyyy] = @factura.fecha_pago_ddmmyyyy
-    end
 
     payload
   end

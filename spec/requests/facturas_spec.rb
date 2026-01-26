@@ -53,4 +53,28 @@ RSpec.describe "/facturas", type: :request do
       expect(json_response["ordenes_fumigacion"]).to be_present
     end
   end
+
+  describe "PATCH /update" do
+    it "updates fecha_pago" do
+      factura = create(:factura, fecha_pago: nil)
+      fecha_pago = Time.zone.local(2026, 1, 20)
+
+      patch factura_url(factura),
+            params: { fecha_pago: fecha_pago },
+            headers: valid_headers,
+            as: :json
+
+      expect(response).to have_http_status(:no_content)
+      expect(factura.reload.fecha_pago).to eq(fecha_pago)
+    end
+
+    it "requires fecha_pago" do
+      factura = create(:factura, fecha_pago: nil)
+
+      patch factura_url(factura), headers: valid_headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(json_response["fecha_pago"]).to contain_exactly("no puede estar vacío")
+    end
+  end
 end
