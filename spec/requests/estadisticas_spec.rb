@@ -7,7 +7,7 @@ RSpec.describe "/estadisticas", type: :request do
   describe "GET /index" do
     it "returns aggregated statistics for the range" do
       fecha = Date.new(2026, 1, 10)
-      fecha_hora = Time.zone.local(2026, 1, 10)
+      fecha_hora = Date.new(2026, 1, 10)
 
       estancia_uno = create(:estancia, nombre: "Estancia 1")
       estancia_dos = create(:estancia, nombre: "Estancia 2")
@@ -58,7 +58,7 @@ RSpec.describe "/estadisticas", type: :request do
 
     it "returns empty arrays when no ordenes match" do
       fecha = Date.new(2026, 1, 10)
-      fecha_hora = Time.zone.local(2026, 1, 10)
+      fecha_hora = Date.new(2026, 1, 10)
       estancia = create(:estancia, nombre: "Estancia 1")
       lote = create(:lote, estancia: estancia, hectareas: 20.5)
       orden = create(:orden_fumigacion, :terminada, fecha_trabajo: fecha, lotes: [ lote ])

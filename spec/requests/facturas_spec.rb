@@ -57,7 +57,7 @@ RSpec.describe "/facturas", type: :request do
   describe "PATCH /update" do
     it "updates fecha_pago" do
       factura = create(:factura, fecha_pago: nil)
-      fecha_pago = Time.zone.local(2026, 1, 20)
+      fecha_pago = Date.new(2026, 1, 20)
 
       patch factura_url(factura),
             params: { fecha_pago: fecha_pago },

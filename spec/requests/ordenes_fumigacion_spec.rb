@@ -107,8 +107,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
     it "includes facturas data when present" do
       orden_fumigacion = create(:orden_fumigacion)
-      fecha_factura = Time.zone.local(2026, 1, 10)
-      fecha_pago = Time.zone.local(2026, 1, 12)
+      fecha_factura = Date.new(2026, 1, 10)
+      fecha_pago = Date.new(2026, 1, 12)
       factura = create(:factura, ordenes_fumigacion: [], fecha_factura: fecha_factura, fecha_pago: fecha_pago, nro_factura: "FAC-2026")
       create(:facturas_ordenes_fumigacion, orden_fumigacion: orden_fumigacion, factura: factura, nro_orden_cliente: "ORD-100")
 
@@ -120,8 +120,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         {
           "nro_factura" => "FAC-2026",
           "nro_orden_cliente" => "ORD-100",
-          "fecha_factura" => fecha_factura.iso8601(3),
-          "fecha_pago" => fecha_pago.iso8601(3)
+          "fecha_factura" => fecha_factura.to_s,
+          "fecha_pago" => fecha_pago.to_s
         }
       ])
     end
@@ -133,7 +133,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
       get ordenes_fumigacion_url, params: { cultivo_id: cultivo.id }, headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "filters by maquinista_id" do
@@ -143,7 +143,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
       get ordenes_fumigacion_url, params: { maquinista_id: maquinista_match.id }, headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "filters by cultivo_id and maquinista_id" do
@@ -157,7 +157,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
           params: { cultivo_id: cultivo_match.id, maquinista_id: maquinista_match.id },
           headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "filters by fecha_desde" do
@@ -182,23 +182,23 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
     it "filters by lote_id" do
       lote_match = create(:lote)
-      orden_match = create(:orden_fumigacion, lotes: [lote_match])
-      create(:orden_fumigacion, lotes: [create(:lote)])
+      orden_match = create(:orden_fumigacion, lotes: [ lote_match ])
+      create(:orden_fumigacion, lotes: [ create(:lote) ])
 
       get ordenes_fumigacion_url, params: { lote_id: lote_match.id }, headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "filters by estancia_id" do
       estancia_match = create(:estancia)
       lote_match = create(:lote, estancia: estancia_match)
-      orden_match = create(:orden_fumigacion, lotes: [lote_match])
-      create(:orden_fumigacion, lotes: [create(:lote)])
+      orden_match = create(:orden_fumigacion, lotes: [ lote_match ])
+      create(:orden_fumigacion, lotes: [ create(:lote) ])
 
       get ordenes_fumigacion_url, params: { estancia_id: estancia_match.id }, headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "filters by nro_orden_cliente with partial match" do
@@ -209,17 +209,17 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
       get ordenes_fumigacion_url, params: { nro_orden_cliente: "ente-12" }, headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "filters by nro_factura with partial match" do
       orden_match = create(:orden_fumigacion)
-      create(:factura, ordenes_fumigacion: [orden_match], nro_factura: "FAC-001-TEST")
-      create(:factura, ordenes_fumigacion: [create(:orden_fumigacion)], nro_factura: "FAC-999")
+      create(:factura, ordenes_fumigacion: [ orden_match ], nro_factura: "FAC-001-TEST")
+      create(:factura, ordenes_fumigacion: [ create(:orden_fumigacion) ], nro_factura: "FAC-999")
 
       get ordenes_fumigacion_url, params: { nro_factura: "001" }, headers: valid_headers
 
-      expect(response_ids).to eq([orden_match.id])
+      expect(response_ids).to eq([ orden_match.id ])
     end
 
     it "orders results by id desc" do
@@ -228,7 +228,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
       get ordenes_fumigacion_url, headers: valid_headers
 
-      expect(response_ids.first(2)).to eq([second.id, first.id])
+      expect(response_ids.first(2)).to eq([ second.id, first.id ])
     end
   end
 
@@ -244,8 +244,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
 
       it "includes facturas data when present" do
         orden_fumigacion = create(:orden_fumigacion)
-        fecha_factura = Time.zone.local(2026, 1, 10)
-        fecha_pago = Time.zone.local(2026, 1, 12)
+        fecha_factura = Date.new(2026, 1, 10)
+        fecha_pago = Date.new(2026, 1, 12)
         factura = create(:factura, ordenes_fumigacion: [], fecha_factura: fecha_factura, fecha_pago: fecha_pago, nro_factura: "FAC-2026")
         create(:facturas_ordenes_fumigacion, orden_fumigacion: orden_fumigacion, factura: factura, nro_orden_cliente: "ORD-100")
 
@@ -255,8 +255,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
           {
             "nro_factura" => "FAC-2026",
             "nro_orden_cliente" => "ORD-100",
-            "fecha_factura" => fecha_factura.iso8601(3),
-            "fecha_pago" => fecha_pago.iso8601(3)
+            "fecha_factura" => fecha_factura.to_s,
+            "fecha_pago" => fecha_pago.to_s
           }
         ])
       end
@@ -461,7 +461,7 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
       lote = create(:lote, estancia: estancia, hectareas: 22)
       orden = create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
       orden_facturada = create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 10, 23))
-      create(:factura, ordenes_fumigacion: [ orden_facturada ], fecha_factura: Time.zone.now)
+      create(:factura, ordenes_fumigacion: [ orden_facturada ], fecha_factura: Date.current)
       create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
       create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
 

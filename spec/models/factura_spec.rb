@@ -22,13 +22,12 @@ RSpec.describe Factura, type: :model do
 
   describe ".pendientes_pago" do
     it "returns only facturas pendientes" do
-      factura_pendiente = create(:factura, fecha_factura: Time.zone.now, fecha_pago: nil)
-      create(:factura, fecha_pago: Time.zone.now)
+      factura_pendiente = create(:factura, fecha_factura: Date.current, fecha_pago: nil)
+      create(:factura, fecha_pago: Date.current)
       factura_sin_fecha = create(:factura, fecha_pago: nil)
       factura_sin_fecha.update_column(:fecha_factura, nil)
 
       expect(described_class.pendientes_pago).to contain_exactly(factura_pendiente)
     end
   end
-
 end

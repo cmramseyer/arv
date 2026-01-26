@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :factura do
-    fecha_factura { Time.zone.now }
+    fecha_factura { Date.current }
     fecha_pago { nil }
     nro_factura { nil }
 
