@@ -4,11 +4,6 @@ class Users::RefreshTokensController < ApplicationController
   skip_before_action :authenticate_user!
 
   def create
-    puts "REFRESH TOKEN CONTROLLER"
-    puts "REFRESH TOKEN CONTROLLER"
-    puts "REFRESH TOKEN CONTROLLER"
-    puts "REFRESH TOKEN CONTROLLER"
-
     payload = refresh_cookie_payload
 
     unless payload.is_a?(Hash)

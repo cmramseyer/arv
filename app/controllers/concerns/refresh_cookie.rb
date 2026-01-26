@@ -8,12 +8,6 @@ module RefreshCookie
   end
 
   def set_refresh_cookie(user_id:, token:, jti:, expires_at:)
-    puts "AAAAAAAAAAAAAAAAA"
-    puts "AAAAAAAAAAAAAAAAA"
-    puts "AAAAAAAAAAAAAAAAA"
-    puts "AAAAAAAAAAAAAAAAA"
-    puts "AAAAAAAAAAAAAAAAA"
-
     cookies.encrypted[:refresh_token] = {
       value: {
         user_id: user_id,
