@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe "/ordenes_fumigacion", type: :request do
   let(:user) { create(:user) }
   let(:maquinista) { create(:maquinista) }
+  let(:file_png) { fixture_file_upload("sample_file.png", "image/png") }
 
   def response_ids
     expect(response).to have_http_status(:ok), response.body
@@ -242,6 +243,16 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         expect(json_response['cultivo']['nombre']).to eq(orden_fumigacion.cultivo.nombre)
       end
 
+      it "includes adjuntos data when present" do
+        orden_fumigacion = create(:orden_fumigacion)
+        orden_fumigacion.adjuntos.attach(file_png)
+
+        get orden_fumigacion_url(orden_fumigacion), headers: valid_headers
+
+        expect(json_response["adjuntos"].first.keys).to match_array(%w[id filename url])
+        expect(json_response["adjuntos"].first["filename"]).to eq("sample_file.png")
+      end
+
       it "includes facturas data when present" do
         orden_fumigacion = create(:orden_fumigacion)
         fecha_factura = Date.new(2026, 1, 10)
@@ -397,6 +408,19 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         orden_fumigacion.reload
         expect(orden_fumigacion.cultivo_id).to eq(new_cultivo.id)
         expect(json_response['cultivo']).to eq({ 'id' => new_cultivo.id, 'nombre' => new_cultivo.nombre })
+      end
+
+      it "attaches adjuntos on update" do
+        orden_fumigacion = create(:orden_fumigacion)
+
+        expect do
+          patch orden_fumigacion_url(orden_fumigacion),
+                params: { orden_fumigacion: { adjuntos: [ file_png ] } }, headers: valid_headers
+        end.to change { orden_fumigacion.reload.adjuntos.count }.by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(json_response["adjuntos"].first.keys).to match_array(%w[id filename url])
+        expect(json_response["adjuntos"].first["filename"]).to eq("sample_file.png")
       end
     end
 

@@ -9,6 +9,7 @@ class OrdenFumigacion < ApplicationRecord
   has_many :facturas, through: :facturas_ordenes_fumigacion
   accepts_nested_attributes_for :lote_ordenes_fumigacion, allow_destroy: true
   has_one_attached :orden_pdf
+  has_many_attached :adjuntos
 
   belongs_to :creator, class_name: "User"
   belongs_to :maquinista, optional: true

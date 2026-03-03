@@ -31,7 +31,12 @@ class OrdenesFumigacionController < ApplicationController
       )
     end
     @ordenes_fumigacion = @ordenes_fumigacion
-      .includes(:maquinista, :cultivo, lote_ordenes_fumigacion: { lote: :estancia })
+      .includes(
+        :maquinista,
+        :cultivo,
+        lote_ordenes_fumigacion: { lote: :estancia },
+        adjuntos_attachments: :blob
+      )
       .distinct
       .order(id: :desc)
 
@@ -67,7 +72,12 @@ class OrdenesFumigacionController < ApplicationController
 
   # PATCH/PUT /ordenes_fumigacion/1
   def update
-    if @orden_fumigacion.update(orden_fumigacion_params)
+    attributes = orden_fumigacion_params
+    adjuntos = attributes.delete(:adjuntos)
+
+    @orden_fumigacion.adjuntos.attach(adjuntos) if adjuntos.present?
+
+    if @orden_fumigacion.update(attributes)
       render json: OrdenFumigacionSerializer.new(@orden_fumigacion).full_show
     else
       render json: @orden_fumigacion.errors, status: :unprocessable_entity
@@ -118,7 +128,9 @@ class OrdenesFumigacionController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_orden_fumigacion
-      @orden_fumigacion = OrdenFumigacion.find(params.expect(:id))
+      @orden_fumigacion = OrdenFumigacion
+        .includes(adjuntos_attachments: :blob)
+        .find(params.expect(:id))
     end
 
     def validate_pendiente_factura_params
@@ -150,6 +162,7 @@ class OrdenesFumigacionController < ApplicationController
         :fecha_trabajo,
         :maquinista_id,
         :cultivo_id,
+        adjuntos: [],
         lotes: [ :id, :lote_id, :hectareas_reales, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
       )
 

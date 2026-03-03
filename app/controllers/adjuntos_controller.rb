@@ -7,10 +7,13 @@ class AdjuntosController < ApplicationController
     end
 
     orden = OrdenFumigacion
-      .includes(lotes: { adjuntos_attachments: :blob })
+      .includes(
+        adjuntos_attachments: :blob,
+        lotes: { adjuntos_attachments: :blob }
+      )
       .find(params[:orden_fumigacion_id])
 
-    adjuntos = orden.lotes.flat_map(&:adjuntos).uniq(&:id)
+    adjuntos = (orden.adjuntos.to_a + orden.lotes.flat_map(&:adjuntos)).uniq(&:id)
 
     render json: adjuntos.map { |adjunto| AdjuntoSerializer.new(adjunto).show }
   end

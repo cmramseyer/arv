@@ -35,12 +35,10 @@ class ReporteOrden < Prawn::Document
 
         if orden.activa?
           orden.lotes.each do |lote|
-            adjuntos_para_pdf(lote).each do |adjunto|
-              if adjunto.content_type&.start_with?("image")
-                pdf.image StringIO.new(adjunto.download), fit: [ 500, 300 ]
-              end
-            end
+            render_adjuntos_para_pdf(adjuntos_para_pdf(lote, orden))
           end
+
+          render_adjuntos_para_pdf(adjuntos_orden_para_pdf(orden))
         else
           data_extra
         end
@@ -48,10 +46,35 @@ class ReporteOrden < Prawn::Document
     end
   end
 
-  def adjuntos_para_pdf(lote)
-    return [] if attachment_ids.nil?
+  def adjuntos_para_pdf(lote, orden_fumigacion = orden)
+    selected_ids = selected_attachment_ids_for_pdf(lote, orden_fumigacion)
+    return [] if selected_ids.empty?
 
-    lote.adjuntos.select { |adjunto| attachment_ids.include?(adjunto.id) }
+    lote.adjuntos.select { |adjunto| selected_ids.include?(adjunto.id) }
+  end
+
+  def adjuntos_orden_para_pdf(orden_fumigacion = orden)
+    selected_ids = selected_attachment_ids_for_pdf(nil, orden_fumigacion)
+    return [] if selected_ids.empty?
+
+    orden_fumigacion.adjuntos.select { |adjunto| selected_ids.include?(adjunto.id) }
+  end
+
+  def selected_attachment_ids_for_pdf(lote, orden_fumigacion = orden)
+    return [] if attachment_ids.blank?
+
+    available_ids = orden_fumigacion.adjuntos.ids
+    available_ids = (available_ids + lote.adjuntos.ids).uniq if lote.present?
+
+    available_ids & Array(attachment_ids).map(&:to_i).uniq
+  end
+
+  def render_adjuntos_para_pdf(adjuntos)
+    adjuntos.each do |adjunto|
+      next unless adjunto.content_type&.start_with?("image")
+
+      pdf.image StringIO.new(adjunto.download), fit: [ 500, 300 ]
+    end
   end
 
   def dibujar_header
