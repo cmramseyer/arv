@@ -36,8 +36,13 @@ Rails.application.configure do
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  app_url = ENV.fetch("APP_URL", "http://localhost:3000")
+  app_uri = URI.parse(app_url.include?("://") ? app_url : "http://#{app_url}")
+  default_url_options = { host: app_uri.host, protocol: app_uri.scheme }
+  default_url_options[:port] = app_uri.port if app_uri.port && app_uri.port != app_uri.default_port
+
+  # Set URL options used by mailers and generated attachment links.
+  config.action_mailer.default_url_options = default_url_options
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
@@ -51,5 +56,5 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
 
-  Rails.application.routes.default_url_options[:host] = "localhost:3000"
+  Rails.application.routes.default_url_options = default_url_options
 end
