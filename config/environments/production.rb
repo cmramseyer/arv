@@ -54,8 +54,14 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  app_url = ENV.fetch("APP_URL", "https://example.com")
+  app_uri = URI.parse(app_url.include?("://") ? app_url : "https://#{app_url}")
+  default_url_options = { host: app_uri.host, protocol: app_uri.scheme }
+  default_url_options[:port] = app_uri.port if app_uri.port && app_uri.port != app_uri.default_port
+
+  # Set URL options used by mailers and generated attachment links.
+  config.action_mailer.default_url_options = default_url_options
+  Rails.application.routes.default_url_options = default_url_options
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
