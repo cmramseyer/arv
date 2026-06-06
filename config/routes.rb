@@ -11,6 +11,9 @@ Rails.application.routes.draw do
   end
   resources :productos
   resources :lotes do
+    member do
+      get :adjuntos
+    end
     resources :adjuntos, only: %i[ create destroy ]
   end
   resources :adjuntos, only: %i[ index ]

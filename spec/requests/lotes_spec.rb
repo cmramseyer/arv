@@ -59,6 +59,26 @@ RSpec.describe "/lotes", type: :request do
     end
   end
 
+  describe "GET /lotes/:id/adjuntos" do
+    it "returns only lote adjuntos" do
+      lote = Lote.create! valid_attributes
+
+      get adjuntos_lote_url(lote), headers: valid_headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response).to be_an(Array)
+      expect(json_response.size).to eq(1)
+      expect(json_response.first.keys).to match_array(%w[id filename content_type url])
+      expect(json_response.first["filename"]).to eq("sample_file.png")
+    end
+
+    it "returns 404 if lote not found" do
+      get adjuntos_lote_url(99999), headers: valid_headers, as: :json
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe "POST /create" do
     context "with valid parameters" do
       it "creates a new Lote" do
