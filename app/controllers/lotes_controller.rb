@@ -1,5 +1,5 @@
 class LotesController < ApplicationController
-  before_action :set_lote, only: %i[ show update destroy ]
+  before_action :set_lote, only: %i[ show update destroy adjuntos ]
 
   # GET /lotes
   def index
@@ -15,6 +15,11 @@ class LotesController < ApplicationController
   # GET /lotes/1
   def show
     render json: lote_json.full_show
+  end
+
+  # GET /lotes/1/adjuntos
+  def adjuntos
+    render json: @lote.adjuntos.map { |adjunto| LoteAdjuntoSerializer.new(adjunto).show }
   end
 
   # POST /lotes

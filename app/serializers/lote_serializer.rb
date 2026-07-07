@@ -1,6 +1,4 @@
 class LoteSerializer
-  include Rails.application.routes.url_helpers
-
   FULL_SHOW_KEYS = %w[id nombre estancia_id nombre_estancia lat long link_mapa hectareas created_at updated_at adjuntos]
 
   def initialize(lote)
@@ -32,18 +30,9 @@ class LoteSerializer
       long: @lote.long,
       link_mapa: @lote.link_mapa,
       hectareas: @lote.hectareas,
-      adjuntos: @lote.adjuntos.map { |m| adjunto(m) },
+      adjuntos: @lote.adjuntos.map { |adjunto| LoteAdjuntoSerializer.new(adjunto).show },
       created_at: @lote.created_at,
       updated_at: @lote.updated_at
-    }
-  end
-
-  def adjunto(adjunto)
-    {
-      id: adjunto.id,
-      filename: adjunto.filename.to_s,
-      content_type: adjunto.content_type,
-      url: rails_blob_url(adjunto, only_path: false)
     }
   end
 end

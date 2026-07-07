@@ -201,7 +201,7 @@ class OrdenesFumigacionController < ApplicationController
     end
 
     def terminar_orden_fumigacion_params
-      params.require(:orden_fumigacion).permit(:info_trabajo, :fecha_trabajo, :maquinista_id)
+      params.require(:orden_fumigacion).permit(:datos_clima, :info_trabajo, :fecha_trabajo, :maquinista_id)
     end
 
     def orden_fumigacion_json
