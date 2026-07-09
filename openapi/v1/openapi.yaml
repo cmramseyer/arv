@@ -893,6 +893,87 @@ components:
 security:
 - bearerAuth: []
 paths:
+  "/adjuntos":
+    get:
+      summary: Lista adjuntos de una orden
+      tags:
+      - Adjuntos
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: orden_fumigacion_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: adjuntos encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Adjunto"
+        '422':
+          description: orden_fumigacion_id requerido
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorMessage"
+  "/lotes/{lote_id}/adjuntos":
+    parameters:
+    - name: lote_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Crea un adjunto para un lote
+      tags:
+      - Adjuntos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: adjunto creado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Adjunto"
+        '404':
+          description: lote no encontrado
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
+        required: true
+  "/lotes/{lote_id}/adjuntos/{id}":
+    parameters:
+    - name: lote_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    delete:
+      summary: Elimina un adjunto de un lote
+      tags:
+      - Adjuntos
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: adjunto eliminado
+        '404':
+          description: adjunto no encontrado
   "/cultivos":
     get:
       summary: Lista cultivos
