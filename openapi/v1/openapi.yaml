@@ -1178,6 +1178,129 @@ paths:
       responses:
         '204':
           description: estancia eliminada
+  "/lotes":
+    get:
+      summary: Lista lotes
+      tags:
+      - Lotes
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: estancia_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: lotes filtrados por estancia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/LoteFull"
+    post:
+      summary: Crea un lote
+      tags:
+      - Lotes
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: lote creado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LoteFull"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LoteRequest"
+  "/lotes/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Muestra un lote
+      tags:
+      - Lotes
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: lote encontrado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LoteFull"
+    patch:
+      summary: Actualiza un lote
+      tags:
+      - Lotes
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: lote actualizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LoteFull"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LoteRequest"
+    delete:
+      summary: Elimina un lote
+      tags:
+      - Lotes
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: lote eliminado
+  "/lotes/{id}/adjuntos":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Lista adjuntos de un lote
+      tags:
+      - Lotes
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: adjuntos encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/LoteAdjunto"
   "/maquinistas":
     get:
       summary: Lista maquinistas
