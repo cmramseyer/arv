@@ -909,3 +909,82 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/Producto"
+    post:
+      summary: Crea un producto
+      tags:
+      - Productos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: producto creado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Producto"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ProductoRequest"
+  "/productos/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Muestra un producto
+      tags:
+      - Productos
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: producto encontrado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Producto"
+    patch:
+      summary: Actualiza un producto
+      tags:
+      - Productos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: producto actualizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Producto"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ProductoRequest"
+    delete:
+      summary: Elimina un producto
+      tags:
+      - Productos
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: producto eliminado
