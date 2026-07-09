@@ -1209,7 +1209,7 @@ paths:
       parameters: []
       responses:
         '201':
-          description: lote creado
+          description: lote creado con adjuntos
           content:
             application/json:
               schema:
@@ -1223,6 +1223,9 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              "$ref": "#/components/schemas/LoteRequest"
+          multipart/form-data:
             schema:
               "$ref": "#/components/schemas/LoteRequest"
   "/lotes/{id}":
@@ -1254,7 +1257,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: lote actualizado
+          description: lote actualizado con adjuntos
           content:
             application/json:
               schema:
@@ -1268,6 +1271,9 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              "$ref": "#/components/schemas/LoteRequest"
+          multipart/form-data:
             schema:
               "$ref": "#/components/schemas/LoteRequest"
     delete:

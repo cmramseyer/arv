@@ -47,13 +47,16 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
 
     post "Crea un lote" do
       tags "Lotes"
-      consumes "application/json"
+      consumes "application/json", "multipart/form-data"
       produces "application/json"
       security [ bearerAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
                 schema: { "$ref" => "#/components/schemas/LoteRequest" }
+      parameter name: :lote,
+                in: :formData,
+                required: false
 
       response "201", "lote creado" do
         let(:payload) do
@@ -69,6 +72,25 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
         schema "$ref" => "#/components/schemas/LoteFull"
 
         run_test!
+      end
+
+      response "201", "lote creado con adjuntos" do
+        let(:"Content-Type") { "multipart/form-data" }
+        let(:file_png) { fixture_file_upload("sample_file.png", "image/png") }
+        let(:lote) do
+          {
+            nombre: "Lote con adjunto",
+            estancia_id: create(:estancia).id,
+            hectareas: "20.5",
+            adjuntos: [ file_png ]
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/LoteFull"
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)["adjuntos"]).not_to be_empty
+        end
       end
 
       response "422", "parametros invalidos" do
@@ -106,13 +128,16 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
 
     patch "Actualiza un lote" do
       tags "Lotes"
-      consumes "application/json"
+      consumes "application/json", "multipart/form-data"
       produces "application/json"
       security [ bearerAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
                 schema: { "$ref" => "#/components/schemas/LoteRequest" }
+      parameter name: :lote,
+                in: :formData,
+                required: false
 
       response "200", "lote actualizado" do
         let(:id) { create(:lote).id }
@@ -129,6 +154,24 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
         schema "$ref" => "#/components/schemas/LoteFull"
 
         run_test!
+      end
+
+      response "200", "lote actualizado con adjuntos" do
+        let(:"Content-Type") { "multipart/form-data" }
+        let(:file_png) { fixture_file_upload("sample_file.png", "image/png") }
+        let(:id) { create(:lote).id }
+        let(:lote) do
+          {
+            nombre: "Lote actualizado con adjunto",
+            adjuntos: [ file_png ]
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/LoteFull"
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)["adjuntos"]).not_to be_empty
+        end
       end
 
       response "422", "parametros invalidos" do
