@@ -988,6 +988,101 @@ paths:
       responses:
         '204':
           description: cultivo eliminado
+  "/dosis":
+    get:
+      summary: Lista dosis
+      tags:
+      - Dosis
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: dosis encontradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Dosis"
+    post:
+      summary: Crea una dosis
+      tags:
+      - Dosis
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: dosis creada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Dosis"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/DosisRequest"
+  "/dosis/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Muestra una dosis
+      tags:
+      - Dosis
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: dosis encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Dosis"
+    patch:
+      summary: Actualiza una dosis
+      tags:
+      - Dosis
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: dosis actualizada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Dosis"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/DosisRequest"
+    delete:
+      summary: Elimina una dosis
+      tags:
+      - Dosis
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: dosis eliminada
   "/maquinistas":
     get:
       summary: Lista maquinistas
