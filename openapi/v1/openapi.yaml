@@ -1164,6 +1164,39 @@ paths:
       responses:
         '204':
           description: dosis eliminada
+  "/estadisticas":
+    get:
+      summary: Obtiene estadisticas agregadas
+      tags:
+      - Estadisticas
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: estadisticas encontradas
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Estadistica"
+        '422':
+          description: fechas invalidas
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorMessage"
   "/estancias":
     get:
       summary: Lista estancias
