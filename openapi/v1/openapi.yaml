@@ -193,7 +193,7 @@ components:
           nullable: true
         tipo_producto:
           type: string
-          nullable: false
+          nullable: true
         unidad_medida:
           type: string
           enum:
