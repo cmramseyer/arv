@@ -1259,6 +1259,60 @@ paths:
       responses:
         '204':
           description: estancia eliminada
+  "/facturas":
+    post:
+      summary: Crea una factura
+      tags:
+      - Facturas
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: factura creada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Factura"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FacturaRequest"
+  "/facturas/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    patch:
+      summary: Actualiza fecha de pago de una factura
+      tags:
+      - Facturas
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '204':
+          description: factura actualizada
+        '422':
+          description: fecha_pago requerida
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FacturaUpdateRequest"
   "/lotes":
     get:
       summary: Lista lotes
