@@ -1259,6 +1259,22 @@ paths:
       responses:
         '204':
           description: estancia eliminada
+  "/facturas_pago":
+    get:
+      summary: Lista facturas pendientes de pago
+      tags:
+      - Facturas Pago
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: facturas pendientes encontradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/FacturaPago"
   "/facturas":
     post:
       summary: Crea una factura
