@@ -1083,6 +1083,101 @@ paths:
       responses:
         '204':
           description: dosis eliminada
+  "/estancias":
+    get:
+      summary: Lista estancias
+      tags:
+      - Estancias
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: estancias encontradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Estancia"
+    post:
+      summary: Crea una estancia
+      tags:
+      - Estancias
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: estancia creada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Estancia"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EstanciaRequest"
+  "/estancias/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Muestra una estancia
+      tags:
+      - Estancias
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: estancia encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Estancia"
+    patch:
+      summary: Actualiza una estancia
+      tags:
+      - Estancias
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: estancia actualizada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Estancia"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EstanciaRequest"
+    delete:
+      summary: Elimina una estancia
+      tags:
+      - Estancias
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: estancia eliminada
   "/maquinistas":
     get:
       summary: Lista maquinistas
