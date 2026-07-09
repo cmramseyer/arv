@@ -893,6 +893,101 @@ components:
 security:
 - bearerAuth: []
 paths:
+  "/cultivos":
+    get:
+      summary: Lista cultivos
+      tags:
+      - Cultivos
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: cultivos encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Cultivo"
+    post:
+      summary: Crea un cultivo
+      tags:
+      - Cultivos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: cultivo creado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Cultivo"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CultivoRequest"
+  "/cultivos/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Muestra un cultivo
+      tags:
+      - Cultivos
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: cultivo encontrado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Cultivo"
+    patch:
+      summary: Actualiza un cultivo
+      tags:
+      - Cultivos
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: cultivo actualizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Cultivo"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CultivoRequest"
+    delete:
+      summary: Elimina un cultivo
+      tags:
+      - Cultivos
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: cultivo eliminado
   "/productos":
     get:
       summary: Lista productos
