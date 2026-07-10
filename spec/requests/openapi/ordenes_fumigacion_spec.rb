@@ -211,6 +211,41 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
         run_test!
       end
     end
+
+    delete "Elimina una orden de fumigacion" do
+      tags "Ordenes Fumigacion"
+      security [ bearerAuth: [] ]
+
+      response "204", "orden eliminada" do
+        let(:id) { create(:orden_fumigacion).id }
+
+        run_test!
+      end
+    end
+  end
+
+  path "/ordenes_fumigacion/{id}/pdf" do
+    parameter name: :id, in: :path, type: :integer
+
+    get "Genera PDF de una orden de fumigacion" do
+      tags "Ordenes Fumigacion"
+      produces "application/json"
+      security [ bearerAuth: [] ]
+
+      parameter name: :attachment_ids,
+                in: :query,
+                required: false,
+                schema: { type: :array, items: { type: :integer } }
+
+      response "200", "pdf generado" do
+        let(:id) { create(:orden_fumigacion).id }
+        let(:attachment_ids) { nil }
+
+        schema "$ref" => "#/components/schemas/OrdenPdfResponse"
+
+        run_test!
+      end
+    end
   end
 
   path "/ordenes_fumigacion/pendiente_factura" do

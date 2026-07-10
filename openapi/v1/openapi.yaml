@@ -1723,6 +1723,43 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/OrdenFumigacionRequest"
+    delete:
+      summary: Elimina una orden de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: orden eliminada
+  "/ordenes_fumigacion/{id}/pdf":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Genera PDF de una orden de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: attachment_ids
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+      responses:
+        '200':
+          description: pdf generado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/OrdenPdfResponse"
   "/ordenes_fumigacion/pendiente_factura":
     get:
       summary: Lista ordenes pendientes de factura
