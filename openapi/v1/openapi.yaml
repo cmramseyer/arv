@@ -1586,6 +1586,93 @@ paths:
       responses:
         '204':
           description: maquinista eliminado
+  "/ordenes_fumigacion":
+    get:
+      summary: Lista ordenes de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: estado
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - activa
+          - terminada
+      - name: cultivo_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: maquinista_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: lote_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: estancia_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: nro_orden_cliente
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: nro_factura
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ordenes filtradas por cultivo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/OrdenFumigacion"
+  "/ordenes_fumigacion/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Muestra una orden de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: orden encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/OrdenFumigacion"
   "/productos":
     get:
       summary: Lista productos

@@ -1,0 +1,114 @@
+require "swagger_helper"
+
+RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: :request do
+  let(:user) { create(:user) }
+
+  let(:Authorization) { authenticated_header(user)["Authorization"] }
+
+  path "/ordenes_fumigacion" do
+    get "Lista ordenes de fumigacion" do
+      tags "Ordenes Fumigacion"
+      produces "application/json"
+      security [ bearerAuth: [] ]
+
+      parameter name: :estado,
+                in: :query,
+                required: false,
+                schema: { type: :string, enum: %w[activa terminada] }
+      parameter name: :cultivo_id,
+                in: :query,
+                required: false,
+                schema: { type: :integer }
+      parameter name: :maquinista_id,
+                in: :query,
+                required: false,
+                schema: { type: :integer }
+      parameter name: :fecha_desde,
+                in: :query,
+                required: false,
+                schema: { type: :string, format: :date }
+      parameter name: :fecha_hasta,
+                in: :query,
+                required: false,
+                schema: { type: :string, format: :date }
+      parameter name: :lote_id,
+                in: :query,
+                required: false,
+                schema: { type: :integer }
+      parameter name: :estancia_id,
+                in: :query,
+                required: false,
+                schema: { type: :integer }
+      parameter name: :nro_orden_cliente,
+                in: :query,
+                required: false,
+                schema: { type: :string }
+      parameter name: :nro_factura,
+                in: :query,
+                required: false,
+                schema: { type: :string }
+
+      response "200", "ordenes encontradas" do
+        let(:estado) { nil }
+        let(:cultivo_id) { nil }
+        let(:maquinista_id) { nil }
+        let(:fecha_desde) { nil }
+        let(:fecha_hasta) { nil }
+        let(:lote_id) { nil }
+        let(:estancia_id) { nil }
+        let(:nro_orden_cliente) { nil }
+        let(:nro_factura) { nil }
+
+        before do
+          create(:orden_fumigacion)
+        end
+
+        schema type: :array,
+               items: { "$ref" => "#/components/schemas/OrdenFumigacion" }
+
+        run_test!
+      end
+
+      response "200", "ordenes filtradas por cultivo" do
+        let(:cultivo) { create(:cultivo) }
+        let(:estado) { nil }
+        let(:cultivo_id) { cultivo.id }
+        let(:maquinista_id) { nil }
+        let(:fecha_desde) { nil }
+        let(:fecha_hasta) { nil }
+        let(:lote_id) { nil }
+        let(:estancia_id) { nil }
+        let(:nro_orden_cliente) { nil }
+        let(:nro_factura) { nil }
+
+        before do
+          create(:orden_fumigacion, cultivo: cultivo)
+          create(:orden_fumigacion)
+        end
+
+        schema type: :array,
+               items: { "$ref" => "#/components/schemas/OrdenFumigacion" }
+
+        run_test!
+      end
+    end
+  end
+
+  path "/ordenes_fumigacion/{id}" do
+    parameter name: :id, in: :path, type: :integer
+
+    get "Muestra una orden de fumigacion" do
+      tags "Ordenes Fumigacion"
+      produces "application/json"
+      security [ bearerAuth: [] ]
+
+      response "200", "orden encontrada" do
+        let(:id) { create(:orden_fumigacion).id }
+
+        schema "$ref" => "#/components/schemas/OrdenFumigacion"
+
+        run_test!
+      end
+    end
+  end
+end
