@@ -212,4 +212,55 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
       end
     end
   end
+
+  path "/ordenes_fumigacion/{id}/terminar" do
+    parameter name: :id, in: :path, type: :integer
+
+    patch "Termina una orden de fumigacion" do
+      tags "Ordenes Fumigacion"
+      consumes "application/json"
+      produces "application/json"
+      security [ bearerAuth: [] ]
+
+      parameter name: :payload,
+                in: :body,
+                schema: { "$ref" => "#/components/schemas/TerminarOrdenFumigacionRequest" }
+
+      response "200", "orden terminada" do
+        let(:maquinista) { create(:maquinista) }
+        let(:id) { create(:orden_fumigacion).id }
+        let(:payload) do
+          {
+            orden_fumigacion: {
+              info_trabajo: "Trabajo finalizado",
+              maquinista_id: maquinista.id,
+              fecha_trabajo: "2026-01-20"
+            }
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/OrdenFumigacion"
+
+        run_test!
+      end
+
+      response "422", "orden ya terminada" do
+        let(:maquinista) { create(:maquinista) }
+        let(:id) { create(:orden_fumigacion, :terminada).id }
+        let(:payload) do
+          {
+            orden_fumigacion: {
+              info_trabajo: "Trabajo finalizado",
+              maquinista_id: maquinista.id,
+              fecha_trabajo: "2026-01-20"
+            }
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/ErrorMessage"
+
+        run_test!
+      end
+    end
+  end
 end

@@ -1723,6 +1723,38 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/OrdenFumigacionRequest"
+  "/ordenes_fumigacion/{id}/terminar":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    patch:
+      summary: Termina una orden de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: orden terminada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/OrdenFumigacion"
+        '422':
+          description: orden ya terminada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorMessage"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TerminarOrdenFumigacionRequest"
   "/productos":
     get:
       summary: Lista productos
