@@ -1698,6 +1698,31 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/OrdenFumigacion"
+    patch:
+      summary: Actualiza una orden de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: orden actualizada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/OrdenFumigacion"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/OrdenFumigacionRequest"
   "/productos":
     get:
       summary: Lista productos
