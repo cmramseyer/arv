@@ -1707,7 +1707,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: orden actualizada
+          description: orden actualizada con adjuntos
           content:
             application/json:
               schema:
@@ -1721,6 +1721,9 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              "$ref": "#/components/schemas/OrdenFumigacionRequest"
+          multipart/form-data:
             schema:
               "$ref": "#/components/schemas/OrdenFumigacionRequest"
     delete:

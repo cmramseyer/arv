@@ -170,13 +170,16 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
 
     patch "Actualiza una orden de fumigacion" do
       tags "Ordenes Fumigacion"
-      consumes "application/json"
+      consumes "application/json", "multipart/form-data"
       produces "application/json"
       security [ bearerAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
                 schema: { "$ref" => "#/components/schemas/OrdenFumigacionRequest" }
+      parameter name: :orden_fumigacion,
+                in: :formData,
+                required: false
 
       response "200", "orden actualizada" do
         let(:id) { create(:orden_fumigacion).id }
@@ -194,6 +197,23 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
         schema "$ref" => "#/components/schemas/OrdenFumigacion"
 
         run_test!
+      end
+
+      response "200", "orden actualizada con adjuntos" do
+        let(:"Content-Type") { "multipart/form-data" }
+        let(:file_png) { fixture_file_upload("sample_file.png", "image/png") }
+        let(:id) { create(:orden_fumigacion).id }
+        let(:orden_fumigacion) do
+          {
+            adjuntos: [ file_png ]
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/OrdenFumigacion"
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)["adjuntos"]).not_to be_empty
+        end
       end
 
       response "422", "parametros invalidos" do
