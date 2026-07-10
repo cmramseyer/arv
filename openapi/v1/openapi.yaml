@@ -1653,6 +1653,31 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/OrdenFumigacion"
+    post:
+      summary: Crea una orden de fumigacion
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: orden creada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/OrdenFumigacion"
+        '422':
+          description: parametros invalidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/OrdenFumigacionRequest"
   "/ordenes_fumigacion/{id}":
     parameters:
     - name: id

@@ -92,6 +92,63 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
         run_test!
       end
     end
+
+    post "Crea una orden de fumigacion" do
+      tags "Ordenes Fumigacion"
+      consumes "application/json"
+      produces "application/json"
+      security [ bearerAuth: [] ]
+
+      parameter name: :payload,
+                in: :body,
+                schema: { "$ref" => "#/components/schemas/OrdenFumigacionRequest" }
+
+      response "201", "orden creada" do
+        let(:payload) do
+          lote = create(:lote)
+
+          {
+            orden_fumigacion: {
+              cultivo_id: create(:cultivo).id,
+              sensible: true,
+              comentarios: "Orden sensible",
+              lotes: [
+                {
+                  lote_id: lote.id,
+                  dosis: [
+                    {
+                      producto_id: create(:producto).id,
+                      cantidad: 10
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/OrdenFumigacion"
+
+        run_test!
+      end
+
+      response "422", "parametros invalidos" do
+        let(:payload) do
+          {
+            orden_fumigacion: {
+              cultivo_id: create(:cultivo).id,
+              sensible: true,
+              comentarios: "Orden sin lotes",
+              lotes: []
+            }
+          }
+        end
+
+        schema "$ref" => "#/components/schemas/Error"
+
+        run_test!
+      end
+    end
   end
 
   path "/ordenes_fumigacion/{id}" do
