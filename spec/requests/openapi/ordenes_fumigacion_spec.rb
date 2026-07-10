@@ -213,6 +213,50 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
     end
   end
 
+  path "/ordenes_fumigacion/pendiente_factura" do
+    get "Lista ordenes pendientes de factura" do
+      tags "Ordenes Fumigacion"
+      produces "application/json"
+      security [ bearerAuth: [] ]
+
+      parameter name: :fecha_desde,
+                in: :query,
+                required: false,
+                schema: { type: :string, format: :date }
+      parameter name: :fecha_hasta,
+                in: :query,
+                required: false,
+                schema: { type: :string, format: :date }
+
+      response "200", "ordenes pendientes encontradas" do
+        let(:fecha_desde) { "2025-10-01" }
+        let(:fecha_hasta) { "2025-10-31" }
+
+        before do
+          estancia = create(:estancia, nombre: "Estancia 1")
+          lote = create(:lote, estancia: estancia, hectareas: 22)
+          create(:orden_fumigacion, :terminada, lotes: [ lote ], fecha_trabajo: Date.new(2025, 10, 22))
+          create(:orden_fumigacion, :terminada, fecha_trabajo: Date.new(2025, 11, 1))
+          create(:orden_fumigacion, :activa, fecha_trabajo: Date.new(2025, 10, 22))
+        end
+
+        schema type: :array,
+               items: { "$ref" => "#/components/schemas/PendienteFacturaEstancia" }
+
+        run_test!
+      end
+
+      response "422", "fecha incompleta" do
+        let(:fecha_desde) { "" }
+        let(:fecha_hasta) { "2025-10-31" }
+
+        schema "$ref" => "#/components/schemas/ErrorMessage"
+
+        run_test!
+      end
+    end
+  end
+
   path "/ordenes_fumigacion/{id}/terminar" do
     parameter name: :id, in: :path, type: :integer
 

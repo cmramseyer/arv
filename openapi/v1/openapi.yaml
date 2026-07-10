@@ -1723,6 +1723,41 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/OrdenFumigacionRequest"
+  "/ordenes_fumigacion/pendiente_factura":
+    get:
+      summary: Lista ordenes pendientes de factura
+      tags:
+      - Ordenes Fumigacion
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: ordenes pendientes encontradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/PendienteFacturaEstancia"
+        '422':
+          description: fecha incompleta
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorMessage"
   "/ordenes_fumigacion/{id}/terminar":
     parameters:
     - name: id
