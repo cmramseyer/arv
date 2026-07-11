@@ -974,6 +974,60 @@ paths:
           description: adjunto eliminado
         '404':
           description: adjunto no encontrado
+  "/login":
+    post:
+      summary: Inicia sesion
+      tags:
+      - Auth
+      security: []
+      parameters: []
+      responses:
+        '200':
+          description: sesion iniciada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LoginResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LoginRequest"
+  "/logout":
+    delete:
+      summary: Cierra sesion
+      tags:
+      - Auth
+      security:
+      - bearerAuth: []
+      responses:
+        '204':
+          description: sesion cerrada
+  "/refresh":
+    post:
+      summary: Renueva el access token
+      tags:
+      - Auth
+      security: []
+      parameters:
+      - name: Cookie
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: token renovado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RefreshResponse"
+        '401':
+          description: refresh token invalido
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorMessage"
   "/cultivos":
     get:
       summary: Lista cultivos
