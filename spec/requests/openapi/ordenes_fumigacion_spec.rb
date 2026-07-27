@@ -109,6 +109,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
 
           {
             orden_fumigacion: {
+              estancia_id: lote.estancia_id,
               cultivo_id: create(:cultivo).id,
               sensible: true,
               comentarios: "Orden sensible",

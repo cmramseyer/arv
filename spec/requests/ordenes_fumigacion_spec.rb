@@ -284,6 +284,20 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
     end
   end
 
+  describe "GET /pdf" do
+    it "generates a PDF for an orden with manual lotes" do
+      estancia = create(:estancia, nombre: "Estancia manual")
+      orden = build(:orden_fumigacion, estancia: estancia, lotes: [])
+      orden.lote_ordenes_fumigacion.build(nombre_manual: "Lote manual", hectareas_reales: 10)
+      orden.save!
+
+      get pdf_orden_fumigacion_url(orden), headers: valid_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(orden.reload.orden_pdf).to be_attached
+    end
+  end
+
   describe "POST /create" do
     context "with valid parameters, one lote" do
       it "creates a new OrdenFumigacion" do
@@ -334,6 +348,66 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
         expect(response.content_type).to match(a_string_including("application/json"))
         cultivo = Cultivo.find(valid_attributes_many_lotes['cultivo_id'])
         expect(json_response['cultivo']).to eq({ 'id' => cultivo.id, 'nombre' => cultivo.nombre })
+      end
+    end
+
+    context "with manual lotes" do
+      it "creates multiple manual lotes in the selected estancia" do
+        estancia = create(:estancia)
+        attributes = {
+          estancia_id: estancia.id,
+          lotes: [
+            { nombre_manual: "Lote manual uno", hectareas_reales: 10.5 },
+            { nombre_manual: "Lote manual dos", hectareas_reales: 7.25 }
+          ]
+        }
+
+        expect do
+          post ordenes_fumigacion_url,
+               params: { orden_fumigacion: attributes }, headers: valid_headers, as: :json
+        end.to change(OrdenFumigacion, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+        expect(json_response["estancia_id"]).to eq(estancia.id)
+        expect(json_response["nombre_estancia"]).to eq(estancia.nombre)
+        expect(json_response["lotes"]).to contain_exactly(
+          a_hash_including("lote_id" => nil, "es_manual" => true, "nombre" => "Lote manual uno", "hectareas" => "10.5"),
+          a_hash_including("lote_id" => nil, "es_manual" => true, "nombre" => "Lote manual dos", "hectareas" => "7.25")
+        )
+      end
+
+      it "allows manual and persisted lotes from the selected estancia" do
+        estancia = create(:estancia)
+        lote = create(:lote, estancia: estancia)
+
+        post ordenes_fumigacion_url,
+             params: {
+               orden_fumigacion: {
+                 estancia_id: estancia.id,
+                 lotes: [
+                   { lote_id: lote.id },
+                   { nombre_manual: "Lote manual", hectareas_reales: 5 }
+                 ]
+               }
+             }, headers: valid_headers, as: :json
+
+        expect(response).to have_http_status(:created)
+        expect(json_response["lotes_ids"]).to eq([ lote.id ])
+        expect(json_response["lotes"].map { |item| item["es_manual"] }).to contain_exactly(false, true)
+      end
+
+      it "rejects persisted lotes from another estancia" do
+        estancia = create(:estancia)
+        lote_de_otra_estancia = create(:lote)
+
+        expect do
+          post ordenes_fumigacion_url,
+               params: { orden_fumigacion: { estancia_id: estancia.id, lotes: [ { lote_id: lote_de_otra_estancia.id } ] } },
+               headers: valid_headers,
+               as: :json
+        end.not_to change(OrdenFumigacion, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -501,6 +575,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
           "data" => [
             {
               "lote_id" => lote.id,
+              "nombre" => lote.nombre,
+              "es_manual" => false,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
               "fecha_trabajo_ddmmyyyy" => "22/10/2025",
@@ -530,6 +606,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
           "data" => [
             {
               "lote_id" => lote.id,
+              "nombre" => lote.nombre,
+              "es_manual" => false,
               "hectareas" => lote.hectareas.to_s,
               "fecha_trabajo" => "2025-10-22",
               "fecha_trabajo_ddmmyyyy" => "22/10/2025",
@@ -538,6 +616,8 @@ RSpec.describe "/ordenes_fumigacion", type: :request do
             },
             {
               "lote_id" => lote_dos.id,
+              "nombre" => lote_dos.nombre,
+              "es_manual" => false,
               "hectareas" => lote_dos.hectareas.to_s,
               "fecha_trabajo" => "2025-11-01",
               "fecha_trabajo_ddmmyyyy" => "01/11/2025",

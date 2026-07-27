@@ -4,7 +4,7 @@ class OrdenesPendientesFacturaPorEstancia
   end
 
   def call
-    agrupadas = ordenes.group_by { |orden| orden.lotes.first&.estancia }
+    agrupadas = ordenes.group_by(&:estancia)
 
     agrupadas.filter_map do |estancia, ordenes_estancia|
       next if estancia.nil?
@@ -25,6 +25,8 @@ class OrdenesPendientesFacturaPorEstancia
     orden.lote_ordenes_fumigacion.map do |lote_orden|
       {
         lote_id: lote_orden.lote_id,
+        nombre: lote_orden.nombre,
+        es_manual: lote_orden.manual?,
         hectareas: lote_orden.hectareas,
         fecha_trabajo: orden.fecha_trabajo,
         fecha_trabajo_ddmmyyyy: orden.fecha_trabajo_ddmmyyyy,

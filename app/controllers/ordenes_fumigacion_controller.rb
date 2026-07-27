@@ -13,8 +13,7 @@ class OrdenesFumigacionController < ApplicationController
     @ordenes_fumigacion = @ordenes_fumigacion.where("fecha_trabajo <= ?", params[:fecha_hasta]) if params[:fecha_hasta].present?
     @ordenes_fumigacion = @ordenes_fumigacion.joins(:lote_ordenes_fumigacion)
       .where(lote_ordenes_fumigacion: { lote_id: params[:lote_id] }) if params[:lote_id].present?
-    @ordenes_fumigacion = @ordenes_fumigacion.joins(lote_ordenes_fumigacion: :lote)
-      .where(lotes: { estancia_id: params[:estancia_id] }) if params[:estancia_id].present?
+    @ordenes_fumigacion = @ordenes_fumigacion.where(estancia_id: params[:estancia_id]) if params[:estancia_id].present?
     if params[:nro_orden_cliente].present?
       @ordenes_fumigacion = filter_case_insensitive(
         @ordenes_fumigacion.joins(:facturas_ordenes_fumigacion),
@@ -32,6 +31,7 @@ class OrdenesFumigacionController < ApplicationController
     end
     @ordenes_fumigacion = @ordenes_fumigacion
       .includes(
+        :estancia,
         :maquinista,
         :cultivo,
         lote_ordenes_fumigacion: { lote: :estancia },
@@ -129,7 +129,7 @@ class OrdenesFumigacionController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_orden_fumigacion
       @orden_fumigacion = OrdenFumigacion
-        .includes(adjuntos_attachments: :blob)
+        .includes(:estancia, adjuntos_attachments: :blob)
         .find(params.expect(:id))
     end
 
@@ -160,10 +160,11 @@ class OrdenesFumigacionController < ApplicationController
         :creator_id,
         :estado_orden,
         :fecha_trabajo,
+        :estancia_id,
         :maquinista_id,
         :cultivo_id,
         adjuntos: [],
-        lotes: [ :id, :lote_id, :hectareas_reales, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
+        lotes: [ :id, :lote_id, :nombre_manual, :hectareas_reales, :_destroy, { dosis: [ :id, :producto_id, :cantidad, :_destroy ] } ]
       )
 
       lotes = permitted.delete(:lotes)

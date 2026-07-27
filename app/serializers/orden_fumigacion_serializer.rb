@@ -55,6 +55,7 @@ class OrdenFumigacionSerializer
       {
         id: lote_orden.id,
         lote_id: lote_orden.lote_id,
+        es_manual: lote_orden.manual?,
         nombre: lote_orden.nombre,
         hectareas: lote_orden.hectareas,
         estancia_id: lote_orden.estancia_id,

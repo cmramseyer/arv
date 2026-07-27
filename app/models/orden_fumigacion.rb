@@ -12,6 +12,7 @@ class OrdenFumigacion < ApplicationRecord
   has_many_attached :adjuntos
 
   belongs_to :creator, class_name: "User"
+  belongs_to :estancia
   belongs_to :maquinista, optional: true
   belongs_to :cultivo, optional: true
   validates :creator, presence: true
@@ -20,11 +21,7 @@ class OrdenFumigacion < ApplicationRecord
   validate :must_have_lotes
 
   def nombre_estancia
-    lotes.map(&:estancia_nombre).uniq.join(", ")
-  end
-
-  def estancia_id
-    lotes.map(&:estancia_id)&.uniq&.first
+    estancia.nombre
   end
 
   def fecha_trabajo_ddmmyyyy

@@ -295,7 +295,8 @@ RSpec.configure do |config|
             type: :object,
             properties: {
               id: { type: :integer },
-              lote_id: { type: :integer },
+              lote_id: { type: :integer, nullable: true },
+              es_manual: { type: :boolean },
               nombre: { type: :string },
               hectareas: { type: :string, nullable: true },
               estancia_id: { type: :integer },
@@ -305,7 +306,7 @@ RSpec.configure do |config|
                 items: { "$ref" => "#/components/schemas/OrdenDosis" }
               }
             },
-            required: %w[id lote_id nombre hectareas estancia_id nombre_estancia dosis]
+            required: %w[id lote_id es_manual nombre hectareas estancia_id nombre_estancia dosis]
           },
           OrdenFactura: {
             type: :object,
@@ -321,7 +322,7 @@ RSpec.configure do |config|
             type: :object,
             properties: {
               id: { type: :integer },
-              estancia_id: { type: :integer, nullable: true },
+              estancia_id: { type: :integer },
               nombre_estancia: { type: :string },
               lotes_ids: { type: :array, items: { type: :integer } },
               nombre_lote: { type: :string },
@@ -367,6 +368,7 @@ RSpec.configure do |config|
                   comentarios: { type: :string, nullable: true },
                   estado_orden: { type: :string, enum: %w[activa terminada], nullable: true },
                   fecha_trabajo: { type: :string, format: :date, nullable: true },
+                  estancia_id: { type: :integer },
                   maquinista_id: { type: :integer, nullable: true },
                   cultivo_id: { type: :integer, nullable: true },
                   adjuntos: { type: :array, items: { type: :string, format: :binary } },
@@ -377,6 +379,7 @@ RSpec.configure do |config|
                       properties: {
                         id: { type: :integer, nullable: true },
                         lote_id: { type: :integer, nullable: true },
+                        nombre_manual: { type: :string, nullable: true },
                         hectareas_reales: { type: :string, nullable: true },
                         _destroy: { type: :boolean, nullable: true },
                         dosis: {

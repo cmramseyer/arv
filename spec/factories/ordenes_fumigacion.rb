@@ -1,14 +1,15 @@
 FactoryBot.define do
   factory :orden_fumigacion do
-    lotes { [ create(:lote) ] }
+    estancia { create(:estancia) }
+    lotes { [ create(:lote, estancia: estancia) ] }
     creator { create(:user) }
     cultivo { create(:cultivo) }
     sensible { false }
     comentarios { "Observaciones" }
 
-    # after(:build) do |orden|
-    #   orden.lotes << build(:lote) if orden.lotes.empty?
-    # end
+    after(:build) do |orden|
+      orden.estancia = orden.lotes.first.estancia if orden.lotes.any?
+    end
 
     trait(:tres_dosis) do
       after(:build) do |orden_fumigacion, evaluator|
@@ -30,7 +31,9 @@ FactoryBot.define do
     end
 
     trait(:many_lotes) do
-      lotes { [ create(:lote), create(:lote) ] }
+      lotes do
+        [ create(:lote, estancia: estancia), create(:lote, estancia: estancia) ]
+      end
     end
   end
 end
