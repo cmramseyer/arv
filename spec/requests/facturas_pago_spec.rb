@@ -30,6 +30,7 @@ RSpec.describe "/facturas_pago", type: :request do
             {
               "id" => orden.id,
               "importe" => "123.5",
+              "precio" => "10.04",
               "nro_orden_cliente" => "ORD-100",
               "nombre_estancia" => "Estancia 1",
               "lotes" => [

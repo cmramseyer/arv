@@ -25,6 +25,7 @@ class FacturaPagoSerializer
       {
         id: orden.id,
         importe: detalles[:importe],
+        precio: detalles[:precio],
         nro_orden_cliente: detalles[:nro_orden_cliente],
         nombre_estancia: orden.nombre_estancia,
         lotes: lotes(orden)
@@ -36,6 +37,7 @@ class FacturaPagoSerializer
     @facturas_ordenes_fumigacion_detalles ||= @factura.facturas_ordenes_fumigacion.each_with_object({}) do |factura_orden, memo|
       memo[factura_orden.orden_fumigacion_id] = {
         importe: factura_orden.importe,
+        precio: factura_orden.precio,
         nro_orden_cliente: factura_orden.nro_orden_cliente
       }
     end

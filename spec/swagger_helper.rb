@@ -492,6 +492,7 @@ RSpec.configure do |config|
             properties: {
               id: { type: :integer },
               importe: { type: :string },
+              precio: { type: :string, nullable: true },
               nro_orden_cliente: { type: :string, nullable: true },
               nombre_estancia: { type: :string },
               lotes: {
@@ -506,7 +507,7 @@ RSpec.configure do |config|
                 }
               }
             },
-            required: %w[id importe nro_orden_cliente nombre_estancia lotes]
+            required: %w[id importe precio nro_orden_cliente nombre_estancia lotes]
           },
           FacturaPago: {
             type: :object,
