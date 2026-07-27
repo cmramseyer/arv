@@ -1,7 +1,12 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
+  skip_before_action :verify_signed_out_user, only: :destroy
 
   include RefreshCookie
+
+  def destroy
+    respond_to_on_destroy
+  end
 
   private
 
