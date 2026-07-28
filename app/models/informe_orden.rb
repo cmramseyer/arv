@@ -34,13 +34,16 @@ class InformeOrden
 
   def filas
     @filas ||= ordenes.map do |orden|
+      factura_orden = orden.facturas_ordenes_fumigacion.first
+
       {
         fecha: orden.fecha_trabajo.strftime("%d/%m"),
         orden: orden.id,
         estancia: orden.estancia.nombre,
         maquinista: orden.maquinista.nombre,
         hectareas: hectareas_de(orden),
-        nro_factura: orden.facturas_ordenes_fumigacion.first&.factura&.nro_factura.to_s
+        nro_factura: factura_orden&.factura&.nro_factura.to_s,
+        nro_orden_cliente: factura_orden&.nro_orden_cliente.to_s
       }
     end
   end
@@ -63,15 +66,15 @@ class InformeOrden
   end
 
   def headers
-    [ "Fecha", "#Orden", "Estancia", "Maquinista", "Has.", "Nro factura" ]
+    [ "Fecha", "#Orden", "Estancia", "Maquinista", "Has.", "Nro factura", "Nro Orden" ]
   end
 
   def total
-    [ "Total", "", "", "", formatear_hectareas(total_hectareas), "" ]
+    [ "Total", "", "", "", formatear_hectareas(total_hectareas), "", "" ]
   end
 
   def fila_para_tabla(fila)
-    [ fila[:fecha], fila[:orden], fila[:estancia], fila[:maquinista], formatear_hectareas(fila[:hectareas]), fila[:nro_factura] ]
+    [ fila[:fecha], fila[:orden], fila[:estancia], fila[:maquinista], formatear_hectareas(fila[:hectareas]), fila[:nro_factura], fila[:nro_orden_cliente] ]
   end
 
   def hectareas_de(orden)
@@ -86,6 +89,6 @@ class InformeOrden
   end
 
   def column_widths
-    [ 55, 55, 160, 150, 60, 90 ]
+    [ 55, 55, 150, 140, 60, 90, 100 ]
   end
 end

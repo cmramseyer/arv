@@ -28,7 +28,12 @@ RSpec.describe InformeOrden do
       orden.save!
 
       factura = create(:factura, ordenes_fumigacion: [], nro_factura: "FAC-001")
-      create(:facturas_ordenes_fumigacion, factura: factura, orden_fumigacion: orden)
+      create(
+        :facturas_ordenes_fumigacion,
+        factura: factura,
+        orden_fumigacion: orden,
+        nro_orden_cliente: "ORD-001"
+      )
       informe = described_class.new([ orden ], mes: 7, anio: 2026)
 
       expect(informe.filas).to eq([
@@ -38,7 +43,8 @@ RSpec.describe InformeOrden do
           estancia: "Estancia 1",
           maquinista: "Maquinista 1",
           hectareas: 12.25.to_d,
-          nro_factura: "FAC-001"
+          nro_factura: "FAC-001",
+          nro_orden_cliente: "ORD-001"
         }
       ])
       expect(informe.total_hectareas).to eq(12.25.to_d)
