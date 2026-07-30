@@ -6,7 +6,7 @@ class OrdenesPendientesFactura
 
   def call
     scope = OrdenFumigacion
-      .includes(lotes: :estancia)
+      .includes(:estancia, lote_ordenes_fumigacion: :lote)
       .left_outer_joins(:facturas)
       .where(estado_orden: "terminada")
       .where(facturas: { fecha_factura: nil })

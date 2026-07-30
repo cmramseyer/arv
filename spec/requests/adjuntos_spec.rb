@@ -9,8 +9,9 @@ RSpec.describe "/adjuntos", type: :request do
 
   describe "GET /index" do
     it "returns adjuntos from lotes and orden" do
-      lote_uno = create(:lote)
-      lote_dos = create(:lote)
+      estancia = create(:estancia)
+      lote_uno = create(:lote, estancia: estancia)
+      lote_dos = create(:lote, estancia: estancia)
       orden = create(:orden_fumigacion, lotes: [ lote_uno, lote_dos ])
 
       lote_uno.adjuntos.attach(file_png)

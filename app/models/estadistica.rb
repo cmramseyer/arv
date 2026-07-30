@@ -21,7 +21,7 @@ class Estadistica
       .joins(:facturas)
       .where.not(facturas: { fecha_pago: nil })
       .where(fecha_trabajo: fecha_desde..fecha_hasta)
-      .includes({ lote_ordenes_fumigacion: { lote: :estancia } }, :maquinista, :cultivo)
+      .includes(:estancia, { lote_ordenes_fumigacion: :lote }, :maquinista, :cultivo)
       .distinct
   end
 

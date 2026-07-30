@@ -139,7 +139,7 @@ class ReporteOrden < Prawn::Document
 
     lotes_y_dosis
 
-    if orden.lotes.many?
+    if orden.lote_ordenes_fumigacion.many?
       total_hectareas = orden.lote_ordenes_fumigacion.sum(&:hectareas)
       data = [ [
         { content: "Total", size: font_size, align: :center, valign: :center },

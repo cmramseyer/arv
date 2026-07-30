@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_26_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_27_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -92,11 +92,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_120000) do
   end
 
   create_table "lote_ordenes_fumigacion", force: :cascade do |t|
-    t.integer "lote_id", null: false
+    t.integer "lote_id"
     t.integer "orden_fumigacion_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "hectareas_reales", precision: 10, scale: 2
+    t.string "nombre_manual"
     t.index ["lote_id"], name: "index_lote_ordenes_fumigacion_on_lote_id"
     t.index ["orden_fumigacion_id"], name: "index_lote_ordenes_fumigacion_on_orden_fumigacion_id"
   end
@@ -131,8 +132,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_120000) do
     t.integer "cultivo_id"
     t.boolean "sensible", default: false
     t.text "comentarios"
+    t.integer "estancia_id", null: false
     t.index ["creator_id"], name: "index_ordenes_fumigacion_on_creator_id"
     t.index ["cultivo_id"], name: "index_ordenes_fumigacion_on_cultivo_id"
+    t.index ["estancia_id"], name: "index_ordenes_fumigacion_on_estancia_id"
     t.index ["maquinista_id"], name: "index_ordenes_fumigacion_on_maquinista_id"
   end
 
@@ -173,6 +176,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_120000) do
   add_foreign_key "lote_ordenes_fumigacion", "ordenes_fumigacion"
   add_foreign_key "lotes", "estancias"
   add_foreign_key "ordenes_fumigacion", "cultivos"
+  add_foreign_key "ordenes_fumigacion", "estancias"
   add_foreign_key "ordenes_fumigacion", "maquinistas"
   add_foreign_key "ordenes_fumigacion", "users", column: "creator_id"
 end
