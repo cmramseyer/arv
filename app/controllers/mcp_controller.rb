@@ -44,7 +44,7 @@ class McpController < ActionController::API
     end
 
     def mcp_user
-      User.find(ENV.fetch("MCP_CREATOR_ID"))
+      User.find(ENV.fetch("MCP_CREATOR_ID", "1"))
     end
 
     def app_uri
