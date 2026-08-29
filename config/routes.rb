@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  match "mcp", to: "mcp#handle", via: %i[ get post delete ]
+
   resources :dosis
   resources :ordenes_fumigacion do
     collection do

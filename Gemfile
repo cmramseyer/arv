@@ -40,6 +40,7 @@ gem "devise-jwt"
 
 gem "prawn"
 gem "prawn-table"
+gem "mcp", "~> 1.4"
 
 gem "guard-rspec", require: false
 
