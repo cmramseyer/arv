@@ -32,8 +32,19 @@ class McpController < ActionController::API
       MCP::Server.new(
         name: "arv",
         version: "1.0.0",
-        tools: [ Mcp::Tools::SearchEstancias ]
+        server_context: { creator: mcp_user },
+        tools: [
+          Mcp::Tools::SearchEstancias,
+          Mcp::Tools::SearchProductos,
+          Mcp::Tools::SearchLotes,
+          Mcp::Tools::ResolveOrder,
+          Mcp::Tools::CreateOrder
+        ]
       )
+    end
+
+    def mcp_user
+      User.find(ENV.fetch("MCP_CREATOR_ID"))
     end
 
     def app_uri

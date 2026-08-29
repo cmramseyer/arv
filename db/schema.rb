@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_27_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_29_213000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -133,10 +133,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_27_120000) do
     t.boolean "sensible", default: false
     t.text "comentarios"
     t.integer "estancia_id", null: false
+    t.string "source_request_id"
     t.index ["creator_id"], name: "index_ordenes_fumigacion_on_creator_id"
     t.index ["cultivo_id"], name: "index_ordenes_fumigacion_on_cultivo_id"
     t.index ["estancia_id"], name: "index_ordenes_fumigacion_on_estancia_id"
     t.index ["maquinista_id"], name: "index_ordenes_fumigacion_on_maquinista_id"
+    t.index ["source_request_id"], name: "index_ordenes_fumigacion_on_source_request_id", unique: true
   end
 
   create_table "productos", force: :cascade do |t|
