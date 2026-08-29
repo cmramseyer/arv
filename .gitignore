@@ -30,6 +30,8 @@
 !/tmp/storage/
 !/tmp/storage/.keep
 
+/.atl/*
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
