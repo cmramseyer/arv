@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   match "mcp", to: "mcp#handle", via: %i[ get post delete ]
+  post "telegram/webhook", to: "telegram_webhooks#create"
 
   resources :dosis
   resources :ordenes_fumigacion do

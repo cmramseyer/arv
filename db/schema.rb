@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_29_213000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_29_220000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -166,6 +166,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_213000) do
     t.index ["refresh_token_jti"], name: "index_users_on_refresh_token_jti"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
+  create_table "voice_commands", force: :cascade do |t|
+    t.bigint "telegram_update_id", null: false
+    t.bigint "telegram_chat_id", null: false
+    t.bigint "telegram_user_id", null: false
+    t.bigint "telegram_message_id", null: false
+    t.string "telegram_file_id", null: false
+    t.integer "status", default: 0, null: false
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_update_id"], name: "index_voice_commands_on_telegram_update_id", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
