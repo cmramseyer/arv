@@ -67,6 +67,7 @@ class McpController < ActionController::API
         Mcp::Tools::SearchLotes,
         Mcp::Tools::SearchCultivos,
         Mcp::Tools::ListCultivos,
+        Mcp::Tools::ListOrdenesActivas,
         Mcp::Tools::ResolveOrder
       ]
       tools << Mcp::Tools::CreateOrder if Mcp::CreationEnabled.call

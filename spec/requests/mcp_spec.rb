@@ -56,11 +56,14 @@ RSpec.describe "MCP", type: :request do
       "search_lotes",
       "search_cultivos",
       "list_cultivos",
+      "list_ordenes_activas",
       "resolve_order"
     )
     estancias_tool = tools.find { |tool| tool["name"] == "search_estancias" }
+    active_orders_tool = tools.find { |tool| tool["name"] == "list_ordenes_activas" }
 
     expect(estancias_tool.dig("annotations", "readOnlyHint")).to be(true)
+    expect(active_orders_tool.fetch("description")).to include("cantidad")
   end
 
   it "advertises create_order when creation is enabled" do
