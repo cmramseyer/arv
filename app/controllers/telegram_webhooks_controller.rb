@@ -2,14 +2,24 @@ class TelegramWebhooksController < ActionController::API
   before_action :verify_secret!
 
   def create
-    voice = params.dig(:message, :voice)
-    return head :ok unless voice
+    message = params.require(:message)
+    voice = message[:voice]
+    text = message[:text]
+    return head :ok unless voice || text.present?
+
+    conversation = TelegramConversation.for_message(
+      chat_id: message.dig(:chat, :id),
+      user_id: message.dig(:from, :id)
+    )
 
     command = VoiceCommand.create_or_find_by!(telegram_update_id: params.require(:update_id)) do |record|
-      record.telegram_chat_id = params.dig(:message, :chat, :id)
-      record.telegram_user_id = params.dig(:message, :from, :id)
-      record.telegram_message_id = params.dig(:message, :message_id)
-      record.telegram_file_id = voice.fetch(:file_id)
+      record.telegram_conversation = conversation
+      record.telegram_chat_id = message.dig(:chat, :id)
+      record.telegram_user_id = message.dig(:from, :id)
+      record.telegram_message_id = message[:message_id]
+      record.input_type = voice ? :voice : :text
+      record.telegram_file_id = voice.fetch(:file_id) if voice
+      record.input_text = text if text.present?
     end
 
     ProcessVoiceCommandJob.perform_later(command.id) if command.previously_new_record?

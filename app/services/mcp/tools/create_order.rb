@@ -23,6 +23,7 @@ class Mcp::Tools::CreateOrder < MCP::Tool
   )
 
   def self.call(request_id:, estancia:, lote:, producto:, cantidad:, cultivo: nil, server_context:)
+    Rails.logger.info("MCP create_order started for #{request_id}")
     resolution = Mcp::OrderResolver.call(
       estancia: estancia,
       lote: lote,
@@ -30,7 +31,7 @@ class Mcp::Tools::CreateOrder < MCP::Tool
       cultivo: cultivo,
       cantidad: cantidad
     )
-    return clarification_response(resolution) unless resolution[:valid]
+    return clarification_response(request_id:, resolution:) unless resolution[:valid]
 
     orden = Orders::Create.call(
       request_id: request_id,
@@ -48,6 +49,8 @@ class Mcp::Tools::CreateOrder < MCP::Tool
       structured_content: result
     )
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => error
+    Rails.logger.error("MCP create_order failed for #{request_id}: #{error.class}: #{error.message}")
+    Rails.logger.error(error.full_message(highlight: false))
     result = { error: error.message }
 
     MCP::Tool::Response.new(
@@ -55,9 +58,14 @@ class Mcp::Tools::CreateOrder < MCP::Tool
       error: true,
       structured_content: result
     )
+  rescue StandardError => error
+    Rails.logger.error("MCP create_order crashed for #{request_id}: #{error.class}: #{error.message}")
+    Rails.logger.error(error.full_message(highlight: false))
+    raise
   end
 
-  def self.clarification_response(resolution)
+  def self.clarification_response(request_id:, resolution:)
+    Rails.logger.info("MCP create_order requires clarification for #{request_id}: #{resolution.inspect}")
     result = { status: "needs_clarification", resolution: resolution }
 
     MCP::Tool::Response.new(

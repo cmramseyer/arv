@@ -2,11 +2,17 @@ class McpController < ActionController::API
   before_action :authenticate_mcp!
 
   def handle
+    log_request
     status, headers, body = transport.handle_request(request)
+    Rails.logger.info("MCP response status=#{status} method=#{mcp_method} tool=#{mcp_tool_name}")
 
     headers.each { |name, value| response.set_header(name, value) }
     self.status = status
     self.response_body = body
+  rescue StandardError => error
+    Rails.logger.error("MCP transport failed: #{error.class}: #{error.message}")
+    Rails.logger.error(error.full_message(highlight: false))
+    raise
   end
 
   private
@@ -17,6 +23,21 @@ class McpController < ActionController::API
       return if token.present? && ActiveSupport::SecurityUtils.secure_compare(token, expected_token)
 
       head :unauthorized
+    end
+
+    def log_request
+      Rails.logger.info("MCP request method=#{mcp_method} tool=#{mcp_tool_name}")
+      return unless mcp_tool_name
+
+      Rails.logger.info("MCP tool arguments=#{params.dig(:params, :arguments).inspect}")
+    end
+
+    def mcp_method
+      params[:method]
+    end
+
+    def mcp_tool_name
+      params.dig(:params, :name)
     end
 
     def transport

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_29_223000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_30_201000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -149,6 +149,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_223000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "telegram_conversations", force: :cascade do |t|
+    t.bigint "telegram_chat_id", null: false
+    t.bigint "telegram_user_id", null: false
+    t.string "openai_conversation_id"
+    t.datetime "last_message_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_chat_id", "telegram_user_id"], name: "idx_on_telegram_chat_id_telegram_user_id_58add04748", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -173,12 +183,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_223000) do
     t.bigint "telegram_chat_id", null: false
     t.bigint "telegram_user_id", null: false
     t.bigint "telegram_message_id", null: false
-    t.string "telegram_file_id", null: false
+    t.string "telegram_file_id"
     t.integer "status", default: 0, null: false
     t.text "error"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "transcript"
+    t.integer "telegram_conversation_id"
+    t.integer "input_type", default: 0, null: false
+    t.text "input_text"
+    t.index ["telegram_conversation_id"], name: "index_voice_commands_on_telegram_conversation_id"
     t.index ["telegram_update_id"], name: "index_voice_commands_on_telegram_update_id", unique: true
   end
 
@@ -195,4 +209,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_223000) do
   add_foreign_key "ordenes_fumigacion", "estancias"
   add_foreign_key "ordenes_fumigacion", "maquinistas"
   add_foreign_key "ordenes_fumigacion", "users", column: "creator_id"
+  add_foreign_key "voice_commands", "telegram_conversations"
 end

@@ -23,7 +23,7 @@ RSpec.describe "Telegram webhooks", type: :request do
   it "persists a voice command and enqueues its processing" do
     expect do
       post "/telegram/webhook", params: voice_update, headers: headers, as: :json
-    end.to change(VoiceCommand, :count).by(1)
+    end.to change(VoiceCommand, :count).by(1).and change(TelegramConversation, :count).by(1)
 
     command = VoiceCommand.last
 
@@ -34,8 +34,10 @@ RSpec.describe "Telegram webhooks", type: :request do
       telegram_user_id: 303,
       telegram_message_id: 404,
       telegram_file_id: "voice-file-id",
+      input_type: "voice",
       status: "received"
     )
+    expect(command.telegram_conversation).to have_attributes(telegram_chat_id: 202, telegram_user_id: 303)
     expect(ProcessVoiceCommandJob).to have_been_enqueued.with(command.id)
   end
 
@@ -56,12 +58,21 @@ RSpec.describe "Telegram webhooks", type: :request do
     expect(VoiceCommand.count).to eq(0)
   end
 
-  it "ignores non-voice updates" do
+  it "persists a text command in the active conversation" do
     post "/telegram/webhook", params: text_update, headers: headers, as: :json
 
     expect(response).to have_http_status(:ok)
-    expect(VoiceCommand.count).to eq(0)
-    expect(enqueued_jobs).to be_empty
+    command = VoiceCommand.last
+    expect(command).to have_attributes(input_type: "text", input_text: "Hola", telegram_file_id: nil)
+    expect(ProcessVoiceCommandJob).to have_been_enqueued.with(command.id)
+  end
+
+  it "reuses the conversation for consecutive messages" do
+    post "/telegram/webhook", params: voice_update, headers: headers, as: :json
+
+    expect do
+      post "/telegram/webhook", params: text_update, headers: headers, as: :json
+    end.to change(VoiceCommand, :count).by(1).and change(TelegramConversation, :count).by(0)
   end
 
   private
