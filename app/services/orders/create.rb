@@ -3,13 +3,14 @@ class Orders::Create
     new(...).call
   end
 
-  def initialize(request_id:, estancia_id:, lote_id:, producto_id:, cantidad:, creator:)
+  def initialize(request_id:, estancia_id:, lote_id:, producto_id:, cantidad:, creator:, cultivo_id: nil)
     @request_id = request_id
     @estancia_id = estancia_id
     @lote_id = lote_id
     @producto_id = producto_id
     @cantidad = cantidad
     @creator = creator
+    @cultivo_id = cultivo_id
   end
 
   def call
@@ -25,11 +26,13 @@ class Orders::Create
       estancia = Estancia.find(@estancia_id)
       lote = estancia.lotes.find(@lote_id)
       producto = Producto.find(@producto_id)
+      cultivo = Cultivo.find(@cultivo_id) if @cultivo_id.present?
       validate_cantidad!
 
       orden = OrdenFumigacion.new(
         creator: @creator,
         estancia: estancia,
+        cultivo: cultivo,
         source_request_id: @request_id
       )
       lote_orden = orden.lote_ordenes_fumigacion.build(lote: lote)

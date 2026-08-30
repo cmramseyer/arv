@@ -18,7 +18,16 @@ RSpec.describe Ai::OrderInterpreter do
       expect(params[:tools].first).to include(
         server_url: "https://arv.example/mcp",
         authorization: "mcp-token",
-        allowed_tools: %w[search_estancias search_productos search_lotes resolve_order]
+        allowed_tools: %w[
+          list_estancias
+          search_estancias
+          list_productos
+          search_productos
+          search_lotes
+          list_cultivos
+          search_cultivos
+          resolve_order
+        ]
       )
       response
     end
@@ -41,7 +50,7 @@ RSpec.describe Ai::OrderInterpreter do
 
     expect(responses).to receive(:create) do |params|
       tool = params[:tools].first
-      expect(tool[:allowed_tools]).to include("create_order")
+      expect(tool[:allowed_tools]).to eq([ "create_order" ])
       expect(params[:input]).to include("request_id voice-command-1")
       response
     end

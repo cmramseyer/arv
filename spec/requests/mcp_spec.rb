@@ -50,8 +50,12 @@ RSpec.describe "MCP", type: :request do
 
     expect(tools.map { |tool| tool.fetch("name") }).to contain_exactly(
       "search_estancias",
+      "list_estancias",
       "search_productos",
+      "list_productos",
       "search_lotes",
+      "search_cultivos",
+      "list_cultivos",
       "resolve_order"
     )
     estancias_tool = tools.find { |tool| tool["name"] == "search_estancias" }
@@ -92,9 +96,9 @@ RSpec.describe "MCP", type: :request do
              name: "create_order",
              arguments: {
                request_id: "request-123",
-               estancia_id: estancia.id,
-               lote_id: lote.id,
-               producto_id: producto.id,
+               estancia: estancia.nombre,
+               lote: lote.nombre,
+               producto: producto.nombre,
                cantidad: 20
              }
            ).to_json,
@@ -114,9 +118,9 @@ RSpec.describe "MCP", type: :request do
              name: "create_order",
              arguments: {
                request_id: "request-123",
-               estancia_id: estancia.id,
-               lote_id: lote.id,
-               producto_id: producto.id,
+               estancia: estancia.nombre,
+               lote: lote.nombre,
+               producto: producto.nombre,
                cantidad: 20
              }
            ).to_json,

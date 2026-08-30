@@ -34,6 +34,14 @@ RSpec.describe Orders::Create do
     expect(described_class.call(**attributes)).to eq(first_order)
   end
 
+  it "assigns an optional crop" do
+    cultivo = create(:cultivo)
+
+    orden = described_class.call(**attributes, cultivo_id: cultivo.id)
+
+    expect(orden.cultivo).to eq(cultivo)
+  end
+
   it "rejects a lote from another estancia" do
     attributes[:lote_id] = create(:lote).id
 

@@ -20,6 +20,7 @@ RSpec.describe Mcp::Tools::ResolveOrder do
       estancia: { status: "resolved", id: estancia.id, nombre: "San José" },
       lote: { status: "resolved", id: lote.id, nombre: "Norte" },
       producto: { status: "resolved", id: producto.id, nombre: "Roundup", unidad_medida: "litros" },
+      cultivo: nil,
       cantidad: 20
     )
   end
@@ -61,5 +62,26 @@ RSpec.describe Mcp::Tools::ResolveOrder do
 
     expect(response.structured_content.dig(:estancia, :status)).to eq("ambiguous")
     expect(response.structured_content).to include(valid: false)
+  end
+
+  it "resolves an optional crop when it is supplied" do
+    estancia = create(:estancia, nombre: "San Jose")
+    create(:lote, estancia: estancia, nombre: "Norte")
+    create(:producto, nombre: "Roundup")
+    cultivo = create(:cultivo, nombre: "Soja")
+
+    response = described_class.call(
+      estancia: estancia.nombre,
+      lote: "Norte",
+      producto: "Roundup",
+      cultivo: "soja",
+      cantidad: 20,
+      server_context: {}
+    )
+
+    expect(response.structured_content).to include(
+      valid: true,
+      cultivo: { status: "resolved", id: cultivo.id, nombre: "Soja" }
+    )
   end
 end

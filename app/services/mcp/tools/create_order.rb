@@ -1,17 +1,18 @@
 class Mcp::Tools::CreateOrder < MCP::Tool
   tool_name "create_order"
   title "Create order"
-  description "Crea una orden con un lote persistido y una dosis de producto."
+  description "Crea una orden desde nombres de negocio. Resuelve y valida estancia, lote, producto y cultivo opcional internamente."
 
   input_schema(
     properties: {
       request_id: { type: "string", minLength: 1 },
-      estancia_id: { type: "integer", minimum: 1 },
-      lote_id: { type: "integer", minimum: 1 },
-      producto_id: { type: "integer", minimum: 1 },
+      estancia: { type: "string", minLength: 1 },
+      lote: { type: "string", minLength: 1 },
+      producto: { type: "string", minLength: 1 },
+      cultivo: { type: "string", minLength: 1 },
       cantidad: { type: "integer", minimum: 1 }
     },
-    required: %w[ request_id estancia_id lote_id producto_id cantidad ]
+    required: %w[ request_id estancia lote producto cantidad ]
   )
 
   annotations(
@@ -21,16 +22,26 @@ class Mcp::Tools::CreateOrder < MCP::Tool
     open_world_hint: false
   )
 
-  def self.call(request_id:, estancia_id:, lote_id:, producto_id:, cantidad:, server_context:)
+  def self.call(request_id:, estancia:, lote:, producto:, cantidad:, cultivo: nil, server_context:)
+    resolution = Mcp::OrderResolver.call(
+      estancia: estancia,
+      lote: lote,
+      producto: producto,
+      cultivo: cultivo,
+      cantidad: cantidad
+    )
+    return clarification_response(resolution) unless resolution[:valid]
+
     orden = Orders::Create.call(
       request_id: request_id,
-      estancia_id: estancia_id,
-      lote_id: lote_id,
-      producto_id: producto_id,
+      estancia_id: resolution.dig(:estancia, :id),
+      lote_id: resolution.dig(:lote, :id),
+      producto_id: resolution.dig(:producto, :id),
+      cultivo_id: resolution.dig(:cultivo, :id),
       cantidad: cantidad,
       creator: server_context.fetch(:creator)
     )
-    result = { order_id: orden.id, status: "created" }
+    result = { order_id: orden.id, status: "created", resolution: resolution }
 
     MCP::Tool::Response.new(
       [ { type: "text", text: result.to_json } ],
@@ -45,4 +56,14 @@ class Mcp::Tools::CreateOrder < MCP::Tool
       structured_content: result
     )
   end
+
+  def self.clarification_response(resolution)
+    result = { status: "needs_clarification", resolution: resolution }
+
+    MCP::Tool::Response.new(
+      [ { type: "text", text: result.to_json } ],
+      structured_content: result
+    )
+  end
+  private_class_method :clarification_response
 end

@@ -40,8 +40,12 @@ class McpController < ActionController::API
     def mcp_tools
       tools = [
         Mcp::Tools::SearchEstancias,
+        Mcp::Tools::ListEstancias,
         Mcp::Tools::SearchProductos,
+        Mcp::Tools::ListProductos,
         Mcp::Tools::SearchLotes,
+        Mcp::Tools::SearchCultivos,
+        Mcp::Tools::ListCultivos,
         Mcp::Tools::ResolveOrder
       ]
       tools << Mcp::Tools::CreateOrder if Mcp::CreationEnabled.call
