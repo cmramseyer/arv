@@ -33,14 +33,19 @@ class McpController < ActionController::API
         name: "arv",
         version: "1.0.0",
         server_context: { creator: mcp_user },
-        tools: [
-          Mcp::Tools::SearchEstancias,
-          Mcp::Tools::SearchProductos,
-          Mcp::Tools::SearchLotes,
-          Mcp::Tools::ResolveOrder,
-          Mcp::Tools::CreateOrder
-        ]
+        tools: mcp_tools
       )
+    end
+
+    def mcp_tools
+      tools = [
+        Mcp::Tools::SearchEstancias,
+        Mcp::Tools::SearchProductos,
+        Mcp::Tools::SearchLotes,
+        Mcp::Tools::ResolveOrder
+      ]
+      tools << Mcp::Tools::CreateOrder if Mcp::CreationEnabled.call
+      tools
     end
 
     def mcp_user

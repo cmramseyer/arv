@@ -12,6 +12,27 @@ class Telegram::Client
     post("sendMessage", chat_id: chat_id, text: text)
   end
 
+  def get_file(file_id:)
+    post("getFile", file_id: file_id).fetch("result")
+  end
+
+  def download_file(file_path:, destination:)
+    uri = URI("#{API_URL}/file/bot#{@token}/#{file_path}")
+    request = Net::HTTP::Get.new(uri)
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request) do |response|
+        unless response.is_a?(Net::HTTPSuccess)
+          raise "Telegram file download failed with #{response.code}"
+        end
+
+        response.read_body { |chunk| destination.write(chunk) }
+      end
+    end
+
+    destination.flush
+  end
+
   private
     def post(method, payload)
       uri = URI("#{API_URL}/bot#{@token}/#{method}")

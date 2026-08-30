@@ -13,12 +13,15 @@ RSpec.describe "MCP", type: :request do
   around do |example|
     original_token = ENV.fetch("MCP_ACCESS_TOKEN", nil)
     original_creator_id = ENV.fetch("MCP_CREATOR_ID", nil)
+    original_allow_creation = ENV.fetch("ALLOW_CREATION", nil)
     ENV["MCP_ACCESS_TOKEN"] = access_token
     ENV["MCP_CREATOR_ID"] = creator.id.to_s
+    ENV.delete("ALLOW_CREATION")
     example.run
   ensure
     ENV["MCP_ACCESS_TOKEN"] = original_token
     ENV["MCP_CREATOR_ID"] = original_creator_id
+    ENV["ALLOW_CREATION"] = original_allow_creation
   end
 
   before { host! "localhost" }
@@ -39,7 +42,7 @@ RSpec.describe "MCP", type: :request do
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "advertises the available MCP tools" do
+  it "does not advertise create_order unless creation is enabled" do
     post "/mcp", params: tools_list_request.to_json, headers: headers
 
     expect(response).to have_http_status(:ok), response.body
@@ -49,13 +52,21 @@ RSpec.describe "MCP", type: :request do
       "search_estancias",
       "search_productos",
       "search_lotes",
-      "resolve_order",
-      "create_order"
+      "resolve_order"
     )
     estancias_tool = tools.find { |tool| tool["name"] == "search_estancias" }
-    create_order_tool = tools.find { |tool| tool["name"] == "create_order" }
 
     expect(estancias_tool.dig("annotations", "readOnlyHint")).to be(true)
+  end
+
+  it "advertises create_order when creation is enabled" do
+    ENV["ALLOW_CREATION"] = "true"
+
+    post "/mcp", params: tools_list_request.to_json, headers: headers
+
+    tools = JSON.parse(response.body).dig("result", "tools")
+    create_order_tool = tools.find { |tool| tool["name"] == "create_order" }
+
     expect(create_order_tool.dig("annotations", "readOnlyHint")).to be(false)
   end
 
@@ -70,7 +81,29 @@ RSpec.describe "MCP", type: :request do
     expect(result).to eq("estancias" => [ { "id" => estancia.id, "nombre" => estancia.nombre } ])
   end
 
+  it "does not create an order when creation is disabled" do
+    estancia = create(:estancia)
+    lote = create(:lote, estancia: estancia)
+    producto = create(:producto)
+
+    expect do
+      post "/mcp",
+           params: tool_call_request(
+             name: "create_order",
+             arguments: {
+               request_id: "request-123",
+               estancia_id: estancia.id,
+               lote_id: lote.id,
+               producto_id: producto.id,
+               cantidad: 20
+             }
+           ).to_json,
+           headers: headers
+    end.not_to change(OrdenFumigacion, :count)
+  end
+
   it "creates an order through the MCP transport" do
+    ENV["ALLOW_CREATION"] = "true"
     estancia = create(:estancia)
     lote = create(:lote, estancia: estancia)
     producto = create(:producto)
