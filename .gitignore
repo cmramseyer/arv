@@ -37,5 +37,6 @@
 /config/master.key
 
 /.playwright-mcp/*
+/.codegraph/
 
 AGENTS.md
