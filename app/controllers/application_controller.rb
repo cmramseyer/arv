@@ -3,8 +3,6 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate_user!
 
-  before_action :skip_session_storage
-
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_token
 
   protected
@@ -17,11 +15,5 @@ class ApplicationController < ActionController::API
     unless current_user
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
-  end
-
-  private
-
-  def skip_session_storage
-    request.session_options[:skip] = true
   end
 end

@@ -1,6 +1,5 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
-require 'devise/jwt/test_helpers'
 
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
@@ -75,6 +74,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include ApiHelper
   config.include JsonHelper, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :request
 
   config.filter_run_when_matching :focus
 end

@@ -57,6 +57,15 @@ RSpec.configure do |config|
             },
             required: %w[id email username created_at updated_at]
           },
+          SessionUser: {
+            type: :object,
+            properties: {
+              id: { type: :integer },
+              email: { type: :string, format: :email },
+              username: { type: :string }
+            },
+            required: %w[id email username]
+          },
           LoginRequest: {
             type: :object,
             properties: {
@@ -74,18 +83,10 @@ RSpec.configure do |config|
           LoginResponse: {
             type: :object,
             properties: {
-              message: { type: :string },
-              user: { "$ref" => "#/components/schemas/User" },
-              token: { type: :string }
+              authenticated: { type: :boolean },
+              user: { "$ref" => "#/components/schemas/SessionUser" }
             },
-            required: %w[message user token]
-          },
-          RefreshResponse: {
-            type: :object,
-            properties: {
-              token: { type: :string }
-            },
-            required: %w[token]
+            required: %w[authenticated user]
           },
           McpToolsListRequest: {
             type: :object,

@@ -37,7 +37,6 @@ gem "image_processing", "~> 1.2"
 # gem "rack-cors"
 
 gem "devise"
-gem "devise-jwt"
 
 gem "prawn"
 gem "prawn-table"
