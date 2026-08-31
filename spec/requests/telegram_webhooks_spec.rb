@@ -8,12 +8,15 @@ RSpec.describe "Telegram webhooks", type: :request do
 
   around do |example|
     original_secret = ENV.fetch("TELEGRAM_WEBHOOK_SECRET", nil)
+    original_allowed_user_ids = ENV.fetch("TELEGRAM_ALLOWED_USER_IDS", nil)
     original_adapter = ActiveJob::Base.queue_adapter
     ENV["TELEGRAM_WEBHOOK_SECRET"] = webhook_secret
+    ENV["TELEGRAM_ALLOWED_USER_IDS"] = "303"
     ActiveJob::Base.queue_adapter = :test
     example.run
   ensure
     ENV["TELEGRAM_WEBHOOK_SECRET"] = original_secret
+    ENV["TELEGRAM_ALLOWED_USER_IDS"] = original_allowed_user_ids
     ActiveJob::Base.queue_adapter = original_adapter
   end
 
@@ -58,6 +61,32 @@ RSpec.describe "Telegram webhooks", type: :request do
     expect(VoiceCommand.count).to eq(0)
   end
 
+  it "discards a private message from an unauthorized user and records its ID" do
+    ENV["TELEGRAM_ALLOWED_USER_IDS"] = "999"
+
+    expect(Telegram::UnauthorizedUserLog).to receive(:call).with(user_id: 303)
+
+    post "/telegram/webhook", params: voice_update, headers: headers, as: :json
+
+    expect(response).to have_http_status(:ok)
+    expect(VoiceCommand.count).to eq(0)
+    expect(TelegramConversation.count).to eq(0)
+    expect(enqueued_jobs).to be_empty
+  end
+
+  it "discards group messages even from an authorized user" do
+    group_update = voice_update.deep_merge(message: { chat: { id: -202, type: "group" } })
+
+    expect(Telegram::UnauthorizedUserLog).not_to receive(:call)
+
+    post "/telegram/webhook", params: group_update, headers: headers, as: :json
+
+    expect(response).to have_http_status(:ok)
+    expect(VoiceCommand.count).to eq(0)
+    expect(TelegramConversation.count).to eq(0)
+    expect(enqueued_jobs).to be_empty
+  end
+
   it "persists a text command in the active conversation" do
     post "/telegram/webhook", params: text_update, headers: headers, as: :json
 
@@ -82,7 +111,7 @@ RSpec.describe "Telegram webhooks", type: :request do
         message: {
           message_id: 404,
           from: { id: 303 },
-          chat: { id: 202 },
+          chat: { id: 202, type: "private" },
           voice: { file_id: "voice-file-id" }
         }
       }
@@ -94,7 +123,7 @@ RSpec.describe "Telegram webhooks", type: :request do
         message: {
           message_id: 405,
           from: { id: 303 },
-          chat: { id: 202 },
+          chat: { id: 202, type: "private" },
           text: "Hola"
         }
       }

@@ -6,6 +6,8 @@ class TelegramWebhooksController < ActionController::API
     voice = message[:voice]
     text = message[:text]
     return head :ok unless voice || text.present?
+    return head :ok unless private_chat?(message)
+    return reject_unauthorized_user(message) unless allowed_user?(message)
 
     conversation = TelegramConversation.for_message(
       chat_id: message.dig(:chat, :id),
@@ -35,5 +37,18 @@ class TelegramWebhooksController < ActionController::API
       return if token.present? && ActiveSupport::SecurityUtils.secure_compare(token, expected_token)
 
       head :unauthorized
+    end
+
+    def private_chat?(message)
+      message.dig(:chat, :type) == "private"
+    end
+
+    def allowed_user?(message)
+      Telegram::AllowedUserIds.include?(message.dig(:from, :id))
+    end
+
+    def reject_unauthorized_user(message)
+      Telegram::UnauthorizedUserLog.call(user_id: message.dig(:from, :id))
+      head :ok
     end
 end
