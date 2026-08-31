@@ -18,5 +18,4 @@ class EstadisticasController < ApplicationController
   rescue Date::Error
     render json: { error: "fecha_desde y fecha_hasta deben ser fechas válidas" }, status: :unprocessable_entity
   end
-
 end

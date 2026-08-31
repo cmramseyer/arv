@@ -37,6 +37,7 @@ Rails.application.configure do
 
   app_url = ENV.fetch("APP_URL", "http://localhost:3000")
   app_uri = URI.parse(app_url.include?("://") ? app_url : "http://#{app_url}")
+  config.hosts << app_uri.host
   default_url_options = { host: app_uri.host, protocol: app_uri.scheme }
   default_url_options[:port] = app_uri.port if app_uri.port && app_uri.port != app_uri.default_port
 

@@ -9,6 +9,7 @@
 
 # Ignore all environment files.
 /.env*
+!/.env.example
 
 /.opencode
 
@@ -30,7 +31,12 @@
 !/tmp/storage/
 !/tmp/storage/.keep
 
+/.atl/*
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+/.playwright-mcp/*
+/.codegraph/
 
 AGENTS.md
