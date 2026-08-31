@@ -460,6 +460,7 @@ DEPENDENCIES
   debug
   devise
   devise-jwt
+  dotenv
   factory_bot
   factory_bot_rails
   faker
