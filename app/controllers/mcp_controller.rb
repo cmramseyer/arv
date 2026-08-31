@@ -70,7 +70,10 @@ class McpController < ActionController::API
         Mcp::Tools::ListOrdenesActivas,
         Mcp::Tools::ResolveOrder
       ]
-      tools << Mcp::Tools::CreateOrder if Mcp::CreationEnabled.call
+      if Mcp::CreationEnabled.call
+        tools << Mcp::Tools::CreateOrder
+        tools << Mcp::Tools::TerminarOrden
+      end
       tools
     end
 

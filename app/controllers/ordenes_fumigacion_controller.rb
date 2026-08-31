@@ -85,12 +85,17 @@ class OrdenesFumigacionController < ApplicationController
   end
 
   def terminar
-    if @orden_fumigacion.terminada?
+    result = Orders::Terminar.call(
+      nro_orden: @orden_fumigacion.id,
+      attributes: terminar_orden_fumigacion_params
+    )
+
+    if result.status == "already_terminated"
       render json: { error: "La orden ya está terminada" }, status: :unprocessable_entity
-    elsif @orden_fumigacion.update(terminar_orden_fumigacion_params.merge(estado_orden: "terminada"))
-      render json: OrdenFumigacionSerializer.new(@orden_fumigacion).full_show
+    elsif result.status == "terminated"
+      render json: OrdenFumigacionSerializer.new(result.orden).full_show
     else
-      render json: @orden_fumigacion.errors, status: :unprocessable_entity
+      render json: result.orden.errors, status: :unprocessable_entity
     end
   end
 

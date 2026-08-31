@@ -9,7 +9,8 @@ RSpec.describe Ai::OrderInterpreter do
       client: client,
       app_url: "https://arv.example",
       mcp_access_token: "mcp-token",
-      creation_enabled: false
+      creation_enabled: false,
+      current_date: Date.new(2026, 8, 30)
     )
 
     expect(responses).to receive(:create) do |params|
@@ -52,13 +53,16 @@ RSpec.describe Ai::OrderInterpreter do
       client: client,
       app_url: "https://arv.example/",
       mcp_access_token: "mcp-token",
-      creation_enabled: true
+      creation_enabled: true,
+      current_date: Date.new(2026, 8, 30)
     )
 
     expect(responses).to receive(:create) do |params|
       tool = params[:tools].first
-      expect(tool[:allowed_tools]).to eq(%w[create_order list_ordenes_activas])
+      expect(tool[:allowed_tools]).to eq(%w[create_order terminar_orden list_ordenes_activas])
       expect(params[:instructions]).to include("request_id voice-command-1")
+      expect(params[:instructions]).to include("2026-08-30")
+      expect(params[:instructions]).to include("YYYY-MM-DD")
       expect(params[:instructions]).to include("conocer su cantidad")
       expect(params[:conversation]).to eq("conv_456")
       response

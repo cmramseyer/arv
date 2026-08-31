@@ -42,7 +42,7 @@ RSpec.describe "MCP", type: :request do
     expect(response).to have_http_status(:unauthorized)
   end
 
-  it "does not advertise create_order unless creation is enabled" do
+  it "does not advertise write tools unless creation is enabled" do
     post "/mcp", params: tools_list_request.to_json, headers: headers
 
     expect(response).to have_http_status(:ok), response.body
@@ -66,15 +66,18 @@ RSpec.describe "MCP", type: :request do
     expect(active_orders_tool.fetch("description")).to include("cantidad")
   end
 
-  it "advertises create_order when creation is enabled" do
+  it "advertises write tools when creation is enabled" do
     ENV["ALLOW_CREATION"] = "true"
 
     post "/mcp", params: tools_list_request.to_json, headers: headers
 
     tools = JSON.parse(response.body).dig("result", "tools")
     create_order_tool = tools.find { |tool| tool["name"] == "create_order" }
+    terminar_orden_tool = tools.find { |tool| tool["name"] == "terminar_orden" }
 
     expect(create_order_tool.dig("annotations", "readOnlyHint")).to be(false)
+    expect(terminar_orden_tool.dig("annotations", "destructiveHint")).to be(true)
+    expect(terminar_orden_tool.dig("inputSchema", "required")).to contain_exactly("nro_orden", "maquinista", "fecha")
   end
 
   it "searches estancias through the MCP transport" do
@@ -133,6 +136,31 @@ RSpec.describe "MCP", type: :request do
     expect(response).to have_http_status(:ok), response.body
     expect(JSON.parse(response.body).dig("result", "structuredContent", "status")).to eq("created")
     expect(OrdenFumigacion.last.creator).to eq(creator)
+  end
+
+  it "terminates an order through the MCP transport" do
+    ENV["ALLOW_CREATION"] = "true"
+    orden = create(:orden_fumigacion, :activa)
+    maquinista = create(:maquinista, nombre: "Juan Perez")
+
+    post "/mcp",
+         params: tool_call_request(
+           name: "terminar_orden",
+           arguments: {
+             nro_orden: orden.id,
+             maquinista: "juan pérez",
+             fecha: "2026-08-29"
+           }
+         ).to_json,
+         headers: headers
+
+    expect(response).to have_http_status(:ok), response.body
+    expect(JSON.parse(response.body).dig("result", "structuredContent", "status")).to eq("terminated")
+    expect(orden.reload).to have_attributes(
+      estado_orden: "terminada",
+      maquinista: maquinista,
+      fecha_trabajo: Date.new(2026, 8, 29)
+    )
   end
 
   private
