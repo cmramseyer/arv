@@ -23,6 +23,12 @@ RSpec.configure do |config|
             type: :http,
             scheme: :bearer,
             bearerFormat: "JWT"
+          },
+          mcpBearerAuth: {
+            type: :http,
+            scheme: :bearer,
+            bearerFormat: "MCP access token",
+            description: "Service token configured through MCP_ACCESS_TOKEN."
           }
         },
         schemas: {
@@ -80,6 +86,50 @@ RSpec.configure do |config|
               token: { type: :string }
             },
             required: %w[token]
+          },
+          McpToolsListRequest: {
+            type: :object,
+            properties: {
+              jsonrpc: { type: :string, enum: [ "2.0" ] },
+              id: { oneOf: [ { type: :string }, { type: :integer } ] },
+              method: { type: :string, enum: [ "tools/list" ] }
+            },
+            required: %w[jsonrpc id method]
+          },
+          McpToolsCallRequest: {
+            type: :object,
+            properties: {
+              jsonrpc: { type: :string, enum: [ "2.0" ] },
+              id: { oneOf: [ { type: :string }, { type: :integer } ] },
+              method: { type: :string, enum: [ "tools/call" ] },
+              params: {
+                type: :object,
+                properties: {
+                  name: { type: :string },
+                  arguments: { type: :object, additionalProperties: true }
+                },
+                required: %w[name]
+              }
+            },
+            required: %w[jsonrpc id method params]
+          },
+          McpJsonRpcResponse: {
+            type: :object,
+            properties: {
+              jsonrpc: { type: :string, enum: [ "2.0" ] },
+              id: { oneOf: [ { type: :string }, { type: :integer } ] },
+              result: { type: :object, additionalProperties: true },
+              error: {
+                type: :object,
+                properties: {
+                  code: { type: :integer },
+                  message: { type: :string },
+                  data: { type: :object, additionalProperties: true }
+                },
+                required: %w[code message]
+              }
+            },
+            required: %w[jsonrpc id]
           },
           Estancia: {
             type: :object,

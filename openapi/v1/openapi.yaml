@@ -12,6 +12,11 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    mcpBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: MCP access token
+      description: Service token configured through MCP_ACCESS_TOKEN.
   schemas:
     Error:
       type: object
@@ -85,6 +90,85 @@ components:
           type: string
       required:
       - token
+    McpToolsListRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum:
+          - '2.0'
+        id:
+          oneOf:
+          - type: string
+          - type: integer
+        method:
+          type: string
+          enum:
+          - tools/list
+      required:
+      - jsonrpc
+      - id
+      - method
+    McpToolsCallRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum:
+          - '2.0'
+        id:
+          oneOf:
+          - type: string
+          - type: integer
+        method:
+          type: string
+          enum:
+          - tools/call
+        params:
+          type: object
+          properties:
+            name:
+              type: string
+            arguments:
+              type: object
+              additionalProperties: true
+          required:
+          - name
+      required:
+      - jsonrpc
+      - id
+      - method
+      - params
+    McpJsonRpcResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum:
+          - '2.0'
+        id:
+          oneOf:
+          - type: string
+          - type: integer
+        result:
+          type: object
+          additionalProperties: true
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+            data:
+              type: object
+              additionalProperties: true
+          required:
+          - code
+          - message
+      required:
+      - jsonrpc
+      - id
     Estancia:
       type: object
       properties:
@@ -420,6 +504,9 @@ components:
           type: integer
         lote_id:
           type: integer
+          nullable: true
+        es_manual:
+          type: boolean
         nombre:
           type: string
         hectareas:
@@ -436,6 +523,7 @@ components:
       required:
       - id
       - lote_id
+      - es_manual
       - nombre
       - hectareas
       - estancia_id
@@ -470,7 +558,6 @@ components:
           type: integer
         estancia_id:
           type: integer
-          nullable: true
         nombre_estancia:
           type: string
         lotes_ids:
@@ -605,6 +692,8 @@ components:
               type: string
               format: date
               nullable: true
+            estancia_id:
+              type: integer
             maquinista_id:
               type: integer
               nullable: true
@@ -626,6 +715,9 @@ components:
                     nullable: true
                   lote_id:
                     type: integer
+                    nullable: true
+                  nombre_manual:
+                    type: string
                     nullable: true
                   hectareas_reales:
                     type: string
@@ -800,6 +892,9 @@ components:
           type: integer
         importe:
           type: string
+        precio:
+          type: string
+          nullable: true
         nro_orden_cliente:
           type: string
           nullable: true
@@ -821,6 +916,7 @@ components:
       required:
       - id
       - importe
+      - precio
       - nro_orden_cliente
       - nombre_estancia
       - lotes
@@ -1416,6 +1512,38 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/FacturaUpdateRequest"
+  "/informe_orden":
+    get:
+      summary: Genera el informe mensual de órdenes terminadas
+      tags:
+      - Informes
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: mes
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: anio
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: informe generado
+        '422':
+          description: período inválido
+          content:
+            application/pdf:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
   "/lotes":
     get:
       summary: Lista lotes
@@ -1640,6 +1768,37 @@ paths:
       responses:
         '204':
           description: maquinista eliminado
+  "/mcp":
+    post:
+      summary: Handles an MCP JSON-RPC request
+      tags:
+      - MCP
+      security:
+      - mcpBearerAuth: []
+      parameters:
+      - name: Accept
+        in: header
+        required: true
+        schema:
+          type: string
+        description: Must include application/json and text/event-stream.
+      responses:
+        '200':
+          description: MCP request handled
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/McpJsonRpcResponse"
+        '401':
+          description: missing or invalid MCP token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - "$ref": "#/components/schemas/McpToolsListRequest"
+              - "$ref": "#/components/schemas/McpToolsCallRequest"
+        required: true
   "/ordenes_fumigacion":
     get:
       summary: Lista ordenes de fumigacion
