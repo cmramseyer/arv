@@ -1,5 +1,9 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
+  include ActionController::RequestForgeryProtection
+
+  self.allow_forgery_protection = Rails.application.config.action_controller.allow_forgery_protection
+  protect_from_forgery with: :exception
 
   before_action :authenticate_user!
 
@@ -15,5 +19,9 @@ class ApplicationController < ActionController::API
     unless current_user
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
+  end
+
+  def session_user(user)
+    user.slice(:id, :email, :username)
   end
 end

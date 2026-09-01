@@ -19,8 +19,4 @@ class Users::SessionsController < Devise::SessionsController
   def respond_to_on_destroy
     head :no_content
   end
-
-  def session_user(user)
-    user.slice(:id, :email, :username)
-  end
 end
