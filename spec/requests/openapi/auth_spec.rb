@@ -9,7 +9,7 @@ RSpec.describe "Auth API", openapi_spec: "v1/openapi.yaml", type: :request do
       tags "Auth"
       consumes "application/json"
       produces "application/json"
-      security [ csrfTokenAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
