@@ -9,7 +9,7 @@ The API also provides operational reports and PDF generation for active work ord
 - Ruby 3.4.3
 - Rails 8 API-only
 - SQLite
-- Devise and JWT authentication
+- Devise cookie-session authentication with CSRF protection
 - Active Storage for attachments
 - Prawn for PDF generation
 - OpenAPI 3.0.3
@@ -63,13 +63,20 @@ Never commit `.env` or production secrets.
 
 ## Authentication
 
-Most endpoints require a JWT access token.
+Browser clients authenticate with an HttpOnly session cookie. The browser sends it automatically; clients must not store or send an access token themselves.
 
-Log in with:
+Get a CSRF token and save the session cookie before logging in:
 
 ```bash
-curl -X POST http://localhost:3000/login \
+CSRF_TOKEN=$(curl -s -c cookies.txt http://localhost:3000/session | jq -r .csrf_token)
+```
+
+Log in with that token:
+
+```bash
+curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/login \
   -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: ${CSRF_TOKEN}" \
   -d '{
     "user": {
       "email": "user@example.com",
@@ -78,20 +85,28 @@ curl -X POST http://localhost:3000/login \
   }'
 ```
 
-Use the returned token in subsequent requests:
+The response contains session information, never a credential. Fetch a fresh CSRF token after login because Devise resets it during authentication:
 
 ```bash
-curl http://localhost:3000/estancias \
-  -H "Authorization: Bearer <token>"
+CSRF_TOKEN=$(curl -s -b cookies.txt -c cookies.txt http://localhost:3000/session | jq -r .csrf_token)
+
+curl -b cookies.txt http://localhost:3000/estancias
+
+curl -b cookies.txt -X POST http://localhost:3000/productos \
+  -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: ${CSRF_TOKEN}" \
+  -d '{ "producto": { "nombre": "Example", "tipo_producto": "herbicida", "unidad_medida": "litros" } }'
 ```
 
 Available authentication endpoints:
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `POST` | `/login` | Creates a user session and returns an access token |
-| `DELETE` | `/logout` | Ends the current session |
-| `POST` | `/refresh` | Refreshes the access token using the refresh-token cookie |
+| `GET` | `/session` | Returns the current session state and a CSRF token |
+| `POST` | `/login` | Creates a user session; requires `X-CSRF-Token` |
+| `DELETE` | `/logout` | Ends the current session; requires `X-CSRF-Token` |
+
+Send `X-CSRF-Token` on every `POST`, `PUT`, `PATCH`, or `DELETE` request. The token is returned by `GET /session`. The MCP endpoint is separate and uses `MCP_ACCESS_TOKEN` as a Bearer token.
 
 ## Main Resources
 
@@ -139,4 +154,3 @@ The Telegram integration only accepts authorized users, private chats, and valid
 ## API Reference
 
 The complete request and response contract is available in [openapi/v1/openapi.yaml](openapi/v1/openapi.yaml). It documents authentication, schemas, validation errors, filters, multipart uploads, and every public endpoint.
-
