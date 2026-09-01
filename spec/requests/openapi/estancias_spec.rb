@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/estancias" do
     get "Lista estancias" do
       tags "Estancias"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "estancias encontradas" do
         before do
@@ -27,7 +27,7 @@ RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request 
       tags "Estancias"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -72,7 +72,7 @@ RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request 
     get "Muestra una estancia" do
       tags "Estancias"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "estancia encontrada" do
         let(:id) { create(:estancia).id }
@@ -87,7 +87,7 @@ RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request 
       tags "Estancias"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -129,7 +129,7 @@ RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request 
 
     delete "Elimina una estancia" do
       tags "Estancias"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "estancia eliminada" do
         let(:id) { create(:estancia).id }

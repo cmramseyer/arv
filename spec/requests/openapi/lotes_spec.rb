@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/lotes" do
     get "Lista lotes" do
       tags "Lotes"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :estancia_id,
                 in: :query,
@@ -49,7 +49,7 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
       tags "Lotes"
       consumes "application/json", "multipart/form-data"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -115,7 +115,7 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
     get "Muestra un lote" do
       tags "Lotes"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "lote encontrado" do
         let(:id) { create(:lote).id }
@@ -130,7 +130,7 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
       tags "Lotes"
       consumes "application/json", "multipart/form-data"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -192,7 +192,7 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
 
     delete "Elimina un lote" do
       tags "Lotes"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "lote eliminado" do
         let(:id) { create(:lote).id }
@@ -208,7 +208,7 @@ RSpec.describe "Lotes API", openapi_spec: "v1/openapi.yaml", type: :request do
     get "Lista adjuntos de un lote" do
       tags "Lotes"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "adjuntos encontrados" do
         let(:file_png) { fixture_file_upload("sample_file.png", "image/png") }

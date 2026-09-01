@@ -3,7 +3,7 @@ require "swagger_helper"
 RSpec.describe "Dosis API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   def dosis_attributes
     orden = create(:orden_fumigacion)
@@ -20,7 +20,7 @@ RSpec.describe "Dosis API", openapi_spec: "v1/openapi.yaml", type: :request do
     get "Lista dosis" do
       tags "Dosis"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "dosis encontradas" do
         before do
@@ -38,7 +38,7 @@ RSpec.describe "Dosis API", openapi_spec: "v1/openapi.yaml", type: :request do
       tags "Dosis"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -78,7 +78,7 @@ RSpec.describe "Dosis API", openapi_spec: "v1/openapi.yaml", type: :request do
     get "Muestra una dosis" do
       tags "Dosis"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "dosis encontrada" do
         let(:id) { Dosis.create!(dosis_attributes).id }
@@ -93,7 +93,7 @@ RSpec.describe "Dosis API", openapi_spec: "v1/openapi.yaml", type: :request do
       tags "Dosis"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -134,7 +134,7 @@ RSpec.describe "Dosis API", openapi_spec: "v1/openapi.yaml", type: :request do
 
     delete "Elimina una dosis" do
       tags "Dosis"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "dosis eliminada" do
         let(:id) { Dosis.create!(dosis_attributes).id }

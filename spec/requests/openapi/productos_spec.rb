@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Productos API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/productos" do
     get "Lista productos" do
       tags "Productos"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "productos encontrados" do
         before do
@@ -27,7 +27,7 @@ RSpec.describe "Productos API", openapi_spec: "v1/openapi.yaml", type: :request 
       tags "Productos"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -73,7 +73,7 @@ RSpec.describe "Productos API", openapi_spec: "v1/openapi.yaml", type: :request 
     get "Muestra un producto" do
       tags "Productos"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "producto encontrado" do
         let(:id) { create(:producto).id }
@@ -88,7 +88,7 @@ RSpec.describe "Productos API", openapi_spec: "v1/openapi.yaml", type: :request 
       tags "Productos"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -131,7 +131,7 @@ RSpec.describe "Productos API", openapi_spec: "v1/openapi.yaml", type: :request 
 
     delete "Elimina un producto" do
       tags "Productos"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "producto eliminado" do
         let(:id) { create(:producto).id }

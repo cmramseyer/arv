@@ -19,10 +19,17 @@ RSpec.configure do |config|
       ],
       components: {
         securitySchemes: {
-          bearerAuth: {
-            type: :http,
-            scheme: :bearer,
-            bearerFormat: "JWT"
+          sessionCookieAuth: {
+            type: :apiKey,
+            in: :cookie,
+            name: "_arv_session",
+            description: "HttpOnly browser session cookie set by POST /login."
+          },
+          csrfTokenAuth: {
+            type: :apiKey,
+            in: :header,
+            name: "X-CSRF-Token",
+            description: "CSRF token returned by GET /session; required for browser mutations."
           },
           mcpBearerAuth: {
             type: :http,
@@ -57,6 +64,15 @@ RSpec.configure do |config|
             },
             required: %w[id email username created_at updated_at]
           },
+          SessionUser: {
+            type: :object,
+            properties: {
+              id: { type: :integer },
+              email: { type: :string, format: :email },
+              username: { type: :string }
+            },
+            required: %w[id email username]
+          },
           LoginRequest: {
             type: :object,
             properties: {
@@ -74,18 +90,24 @@ RSpec.configure do |config|
           LoginResponse: {
             type: :object,
             properties: {
-              message: { type: :string },
-              user: { "$ref" => "#/components/schemas/User" },
-              token: { type: :string }
+              authenticated: { type: :boolean },
+              user: { "$ref" => "#/components/schemas/SessionUser" }
             },
-            required: %w[message user token]
+            required: %w[authenticated user]
           },
-          RefreshResponse: {
+          SessionResponse: {
             type: :object,
             properties: {
-              token: { type: :string }
+              authenticated: { type: :boolean },
+              user: {
+                nullable: true,
+                allOf: [
+                  { "$ref" => "#/components/schemas/SessionUser" }
+                ]
+              },
+              csrf_token: { type: :string }
             },
-            required: %w[token]
+            required: %w[authenticated user csrf_token]
           },
           McpToolsListRequest: {
             type: :object,
@@ -612,7 +634,7 @@ RSpec.configure do |config|
         }
       },
       security: [
-        { bearerAuth: [] }
+        { sessionCookieAuth: [] }
       ],
       paths: {}
     }

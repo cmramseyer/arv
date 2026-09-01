@@ -27,7 +27,7 @@ Rails.application.routes.draw do
   resources :facturas_pago, only: %i[ index ]
   resources :estadisticas, only: %i[ index ]
   get :informe_orden, to: "informes_orden#show"
-  post "refresh", to: "users/refresh_tokens#create"
+  get "session", to: "session#show"
   devise_for :users,
              path: "",
              path_names: {

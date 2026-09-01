@@ -1,10 +1,9 @@
 module ApiHelper
   def authenticated_header(user)
-    payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
-    token = payload[0]
-
-    {
-      'Authorization' => "Bearer #{token}"
-    }
+    sign_in user
+    {}
   end
+
+  # Rswag resolves apiKey header schemes through a method named after the header.
+  define_method("X-CSRF-Token") { "test-csrf-token" }
 end

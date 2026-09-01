@@ -1,9 +1,12 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
+  include ActionController::RequestForgeryProtection
+
+  configured_forgery_protection = Rails.application.config.action_controller.allow_forgery_protection
+  self.allow_forgery_protection = configured_forgery_protection unless configured_forgery_protection.nil?
+  protect_from_forgery with: :exception
 
   before_action :authenticate_user!
-
-  before_action :skip_session_storage
 
   rescue_from ActionController::InvalidAuthenticityToken, with: :handle_invalid_token
 
@@ -19,9 +22,7 @@ class ApplicationController < ActionController::API
     end
   end
 
-  private
-
-  def skip_session_storage
-    request.session_options[:skip] = true
+  def session_user(user)
+    user.slice(:id, :email, :username)
   end
 end

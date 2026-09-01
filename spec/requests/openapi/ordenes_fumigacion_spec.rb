@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/ordenes_fumigacion" do
     get "Lista ordenes de fumigacion" do
       tags "Ordenes Fumigacion"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :estado,
                 in: :query,
@@ -97,7 +97,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
       tags "Ordenes Fumigacion"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -158,7 +158,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
     get "Muestra una orden de fumigacion" do
       tags "Ordenes Fumigacion"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "orden encontrada" do
         let(:id) { create(:orden_fumigacion).id }
@@ -173,7 +173,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
       tags "Ordenes Fumigacion"
       consumes "application/json", "multipart/form-data"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -235,7 +235,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
 
     delete "Elimina una orden de fumigacion" do
       tags "Ordenes Fumigacion"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "orden eliminada" do
         let(:id) { create(:orden_fumigacion).id }
@@ -251,7 +251,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
     get "Genera PDF de una orden de fumigacion" do
       tags "Ordenes Fumigacion"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :attachment_ids,
                 in: :query,
@@ -273,7 +273,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
     get "Lista ordenes pendientes de factura" do
       tags "Ordenes Fumigacion"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :fecha_desde,
                 in: :query,
@@ -320,7 +320,7 @@ RSpec.describe "Ordenes Fumigacion API", openapi_spec: "v1/openapi.yaml", type: 
       tags "Ordenes Fumigacion"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,

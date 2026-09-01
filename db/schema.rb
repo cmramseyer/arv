@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_30_201000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_31_133000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -81,14 +81,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_30_201000) do
     t.string "nro_orden_cliente"
     t.index ["factura_id"], name: "index_facturas_ordenes_fumigacion_on_factura_id"
     t.index ["orden_fumigacion_id"], name: "index_facturas_ordenes_fumigacion_on_orden_fumigacion_id", unique: true
-  end
-
-  create_table "jwt_denylists", force: :cascade do |t|
-    t.string "jti"
-    t.datetime "exp"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
   create_table "lote_ordenes_fumigacion", force: :cascade do |t|
@@ -168,12 +160,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_30_201000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "username", null: false
-    t.string "refresh_token_digest"
-    t.datetime "refresh_token_expires_at"
-    t.string "refresh_token_jti"
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["refresh_token_digest"], name: "index_users_on_refresh_token_digest"
-    t.index ["refresh_token_jti"], name: "index_users_on_refresh_token_jti"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end
