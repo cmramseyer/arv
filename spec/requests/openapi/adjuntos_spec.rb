@@ -4,13 +4,13 @@ RSpec.describe "Adjuntos API", openapi_spec: "v1/openapi.yaml", type: :request d
   let(:user) { create(:user) }
   let(:file_png) { fixture_file_upload("sample_file.png", "image/png") }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/adjuntos" do
     get "Lista adjuntos de una orden" do
       tags "Adjuntos"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :orden_fumigacion_id,
                 in: :query,
@@ -50,7 +50,7 @@ RSpec.describe "Adjuntos API", openapi_spec: "v1/openapi.yaml", type: :request d
       tags "Adjuntos"
       consumes "multipart/form-data"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :adjunto,
                 in: :formData,
@@ -83,7 +83,7 @@ RSpec.describe "Adjuntos API", openapi_spec: "v1/openapi.yaml", type: :request d
 
     delete "Elimina un adjunto de un lote" do
       tags "Adjuntos"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "adjunto eliminado" do
         let(:lote) { create(:lote) }

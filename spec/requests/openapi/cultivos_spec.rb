@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Cultivos API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/cultivos" do
     get "Lista cultivos" do
       tags "Cultivos"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "cultivos encontrados" do
         before do
@@ -27,7 +27,7 @@ RSpec.describe "Cultivos API", openapi_spec: "v1/openapi.yaml", type: :request d
       tags "Cultivos"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -69,7 +69,7 @@ RSpec.describe "Cultivos API", openapi_spec: "v1/openapi.yaml", type: :request d
     get "Muestra un cultivo" do
       tags "Cultivos"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "cultivo encontrado" do
         let(:id) { create(:cultivo).id }
@@ -84,7 +84,7 @@ RSpec.describe "Cultivos API", openapi_spec: "v1/openapi.yaml", type: :request d
       tags "Cultivos"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -123,7 +123,7 @@ RSpec.describe "Cultivos API", openapi_spec: "v1/openapi.yaml", type: :request d
 
     delete "Elimina un cultivo" do
       tags "Cultivos"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "cultivo eliminado" do
         let(:id) { create(:cultivo).id }

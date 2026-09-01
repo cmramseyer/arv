@@ -2,13 +2,13 @@ require "swagger_helper"
 
 RSpec.describe "Informe Orden API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/informe_orden" do
     get "Genera el informe mensual de órdenes terminadas" do
       tags "Informes"
       produces "application/pdf"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :mes, in: :query, type: :integer, required: true
       parameter name: :anio, in: :query, type: :integer, required: true

@@ -8,10 +8,16 @@ servers:
   description: Local development
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    sessionCookieAuth:
+      type: apiKey
+      in: cookie
+      name: _arv_session
+      description: HttpOnly browser session cookie set by POST /login.
+    csrfTokenAuth:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: CSRF token returned by GET /session; required for browser mutations.
     mcpBearerAuth:
       type: http
       scheme: bearer
@@ -53,6 +59,20 @@ components:
       - username
       - created_at
       - updated_at
+    SessionUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+      required:
+      - id
+      - email
+      - username
     LoginRequest:
       type: object
       properties:
@@ -73,23 +93,28 @@ components:
     LoginResponse:
       type: object
       properties:
-        message:
-          type: string
+        authenticated:
+          type: boolean
         user:
-          "$ref": "#/components/schemas/User"
-        token:
-          type: string
+          "$ref": "#/components/schemas/SessionUser"
       required:
-      - message
+      - authenticated
       - user
-      - token
-    RefreshResponse:
+    SessionResponse:
       type: object
       properties:
-        token:
+        authenticated:
+          type: boolean
+        user:
+          nullable: true
+          allOf:
+          - "$ref": "#/components/schemas/SessionUser"
+        csrf_token:
           type: string
       required:
-      - token
+      - authenticated
+      - user
+      - csrf_token
     McpToolsListRequest:
       type: object
       properties:
@@ -987,7 +1012,7 @@ components:
       - hectareas_por_maquinista
       - hectareas_por_cultivo
 security:
-- bearerAuth: []
+- sessionCookieAuth: []
 paths:
   "/adjuntos":
     get:
@@ -995,7 +1020,7 @@ paths:
       tags:
       - Adjuntos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: orden_fumigacion_id
         in: query
@@ -1029,7 +1054,8 @@ paths:
       tags:
       - Adjuntos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1064,7 +1090,8 @@ paths:
       tags:
       - Adjuntos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: adjunto eliminado
@@ -1075,7 +1102,8 @@ paths:
       summary: Inicia sesion
       tags:
       - Auth
-      security: []
+      security:
+      - csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1089,48 +1117,37 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/LoginRequest"
+  "/session":
+    get:
+      summary: Obtiene la sesion actual y el token CSRF
+      tags:
+      - Auth
+      security: []
+      responses:
+        '200':
+          description: estado de sesion
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SessionResponse"
   "/logout":
     delete:
       summary: Cierra sesion
       tags:
       - Auth
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: sesion cerrada
-  "/refresh":
-    post:
-      summary: Renueva el access token
-      tags:
-      - Auth
-      security: []
-      parameters:
-      - name: Cookie
-        in: header
-        required: false
-        schema:
-          type: string
-      responses:
-        '200':
-          description: token renovado
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/RefreshResponse"
-        '401':
-          description: refresh token invalido
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/ErrorMessage"
   "/cultivos":
     get:
       summary: Lista cultivos
       tags:
       - Cultivos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: cultivos encontrados
@@ -1145,7 +1162,8 @@ paths:
       tags:
       - Cultivos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1177,7 +1195,7 @@ paths:
       tags:
       - Cultivos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: cultivo encontrado
@@ -1190,7 +1208,8 @@ paths:
       tags:
       - Cultivos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1215,7 +1234,8 @@ paths:
       tags:
       - Cultivos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: cultivo eliminado
@@ -1225,7 +1245,7 @@ paths:
       tags:
       - Dosis
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: dosis encontradas
@@ -1240,7 +1260,8 @@ paths:
       tags:
       - Dosis
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1272,7 +1293,7 @@ paths:
       tags:
       - Dosis
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: dosis encontrada
@@ -1285,7 +1306,8 @@ paths:
       tags:
       - Dosis
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1310,7 +1332,8 @@ paths:
       tags:
       - Dosis
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: dosis eliminada
@@ -1320,7 +1343,7 @@ paths:
       tags:
       - Estadisticas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: fecha_desde
         in: query
@@ -1353,7 +1376,7 @@ paths:
       tags:
       - Estancias
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: estancias encontradas
@@ -1368,7 +1391,8 @@ paths:
       tags:
       - Estancias
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1400,7 +1424,7 @@ paths:
       tags:
       - Estancias
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: estancia encontrada
@@ -1413,7 +1437,8 @@ paths:
       tags:
       - Estancias
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1438,7 +1463,8 @@ paths:
       tags:
       - Estancias
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: estancia eliminada
@@ -1448,7 +1474,7 @@ paths:
       tags:
       - Facturas Pago
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: facturas pendientes encontradas
@@ -1464,7 +1490,8 @@ paths:
       tags:
       - Facturas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1496,7 +1523,8 @@ paths:
       tags:
       - Facturas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '204':
@@ -1518,7 +1546,7 @@ paths:
       tags:
       - Informes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: mes
         in: query
@@ -1550,7 +1578,7 @@ paths:
       tags:
       - Lotes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: estancia_id
         in: query
@@ -1571,7 +1599,8 @@ paths:
       tags:
       - Lotes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1606,7 +1635,7 @@ paths:
       tags:
       - Lotes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: lote encontrado
@@ -1619,7 +1648,8 @@ paths:
       tags:
       - Lotes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1647,7 +1677,8 @@ paths:
       tags:
       - Lotes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: lote eliminado
@@ -1663,7 +1694,7 @@ paths:
       tags:
       - Lotes
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: adjuntos encontrados
@@ -1679,7 +1710,7 @@ paths:
       tags:
       - Maquinistas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: maquinistas encontrados
@@ -1694,7 +1725,8 @@ paths:
       tags:
       - Maquinistas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1726,7 +1758,7 @@ paths:
       tags:
       - Maquinistas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: maquinista encontrado
@@ -1739,7 +1771,8 @@ paths:
       tags:
       - Maquinistas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1764,7 +1797,8 @@ paths:
       tags:
       - Maquinistas
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: maquinista eliminado
@@ -1805,7 +1839,7 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: estado
         in: query
@@ -1871,7 +1905,8 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -1903,7 +1938,7 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: orden encontrada
@@ -1916,7 +1951,8 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -1944,7 +1980,8 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: orden eliminada
@@ -1960,7 +1997,7 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: attachment_ids
         in: query
@@ -1982,7 +2019,7 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       parameters:
       - name: fecha_desde
         in: query
@@ -2023,7 +2060,8 @@ paths:
       tags:
       - Ordenes Fumigacion
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -2049,7 +2087,7 @@ paths:
       tags:
       - Productos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: productos encontrados
@@ -2064,7 +2102,8 @@ paths:
       tags:
       - Productos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '201':
@@ -2096,7 +2135,7 @@ paths:
       tags:
       - Productos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
       responses:
         '200':
           description: producto encontrado
@@ -2109,7 +2148,8 @@ paths:
       tags:
       - Productos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       parameters: []
       responses:
         '200':
@@ -2134,7 +2174,8 @@ paths:
       tags:
       - Productos
       security:
-      - bearerAuth: []
+      - sessionCookieAuth: []
+        csrfTokenAuth: []
       responses:
         '204':
           description: producto eliminado

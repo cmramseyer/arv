@@ -19,10 +19,17 @@ RSpec.configure do |config|
       ],
       components: {
         securitySchemes: {
-          bearerAuth: {
-            type: :http,
-            scheme: :bearer,
-            bearerFormat: "JWT"
+          sessionCookieAuth: {
+            type: :apiKey,
+            in: :cookie,
+            name: "_arv_session",
+            description: "HttpOnly browser session cookie set by POST /login."
+          },
+          csrfTokenAuth: {
+            type: :apiKey,
+            in: :header,
+            name: "X-CSRF-Token",
+            description: "CSRF token returned by GET /session; required for browser mutations."
           },
           mcpBearerAuth: {
             type: :http,
@@ -87,6 +94,20 @@ RSpec.configure do |config|
               user: { "$ref" => "#/components/schemas/SessionUser" }
             },
             required: %w[authenticated user]
+          },
+          SessionResponse: {
+            type: :object,
+            properties: {
+              authenticated: { type: :boolean },
+              user: {
+                nullable: true,
+                allOf: [
+                  { "$ref" => "#/components/schemas/SessionUser" }
+                ]
+              },
+              csrf_token: { type: :string }
+            },
+            required: %w[authenticated user csrf_token]
           },
           McpToolsListRequest: {
             type: :object,
@@ -613,7 +634,7 @@ RSpec.configure do |config|
         }
       },
       security: [
-        { bearerAuth: [] }
+        { sessionCookieAuth: [] }
       ],
       paths: {}
     }

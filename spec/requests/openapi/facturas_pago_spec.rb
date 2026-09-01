@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Facturas Pago API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/facturas_pago" do
     get "Lista facturas pendientes de pago" do
       tags "Facturas Pago"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "facturas pendientes encontradas" do
         before do

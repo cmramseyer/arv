@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Estadisticas API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/estadisticas" do
     get "Obtiene estadisticas agregadas" do
       tags "Estadisticas"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       parameter name: :fecha_desde,
                 in: :query,

@@ -3,14 +3,14 @@ require "swagger_helper"
 RSpec.describe "Facturas API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/facturas" do
     post "Crea una factura" do
       tags "Facturas"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -57,7 +57,7 @@ RSpec.describe "Facturas API", openapi_spec: "v1/openapi.yaml", type: :request d
       tags "Facturas"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,

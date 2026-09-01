@@ -9,7 +9,7 @@ RSpec.describe "Auth API", openapi_spec: "v1/openapi.yaml", type: :request do
       tags "Auth"
       consumes "application/json"
       produces "application/json"
-      security []
+      security [ csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -32,10 +32,24 @@ RSpec.describe "Auth API", openapi_spec: "v1/openapi.yaml", type: :request do
     end
   end
 
+  path "/session" do
+    get "Obtiene la sesion actual y el token CSRF" do
+      tags "Auth"
+      produces "application/json"
+      security []
+
+      response "200", "estado de sesion" do
+        schema "$ref" => "#/components/schemas/SessionResponse"
+
+        run_test!
+      end
+    end
+  end
+
   path "/logout" do
     delete "Cierra sesion" do
       tags "Auth"
-      security []
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       before { sign_in user }
 

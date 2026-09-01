@@ -3,13 +3,13 @@ require "swagger_helper"
 RSpec.describe "Maquinistas API", openapi_spec: "v1/openapi.yaml", type: :request do
   let(:user) { create(:user) }
 
-  let(:Authorization) { authenticated_header(user)["Authorization"] }
+  before { sign_in user }
 
   path "/maquinistas" do
     get "Lista maquinistas" do
       tags "Maquinistas"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "maquinistas encontrados" do
         before do
@@ -27,7 +27,7 @@ RSpec.describe "Maquinistas API", openapi_spec: "v1/openapi.yaml", type: :reques
       tags "Maquinistas"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -69,7 +69,7 @@ RSpec.describe "Maquinistas API", openapi_spec: "v1/openapi.yaml", type: :reques
     get "Muestra un maquinista" do
       tags "Maquinistas"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [] ]
 
       response "200", "maquinista encontrado" do
         let(:id) { create(:maquinista).id }
@@ -84,7 +84,7 @@ RSpec.describe "Maquinistas API", openapi_spec: "v1/openapi.yaml", type: :reques
       tags "Maquinistas"
       consumes "application/json"
       produces "application/json"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       parameter name: :payload,
                 in: :body,
@@ -123,7 +123,7 @@ RSpec.describe "Maquinistas API", openapi_spec: "v1/openapi.yaml", type: :reques
 
     delete "Elimina un maquinista" do
       tags "Maquinistas"
-      security [ bearerAuth: [] ]
+      security [ sessionCookieAuth: [], csrfTokenAuth: [] ]
 
       response "204", "maquinista eliminado" do
         let(:id) { create(:maquinista).id }
