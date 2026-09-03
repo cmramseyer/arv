@@ -4,6 +4,8 @@ ARV manages the full lifecycle of agricultural work orders. Orders are created i
 
 The API also provides operational reports and PDF generation for active work orders. Generated PDFs are intended to be printed through a cloud-printer integration, which is planned but not implemented yet.
 
+![ARV high-level architecture](ARV_architecture.png)
+
 ## Stack
 
 - Ruby 3.4.3
@@ -22,6 +24,7 @@ The API also provides operational reports and PDF generation for active work ord
 - Ruby 3.4.3
 - Bundler
 - SQLite 3
+- OpenAI API key and Telegram bot (optional; required only for Telegram voice and text commands)
 
 ### Setup
 
