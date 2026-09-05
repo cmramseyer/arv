@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
   include ActionController::RequestForgeryProtection
+  include ActionController::Flash
 
   configured_forgery_protection = Rails.application.config.action_controller.allow_forgery_protection
   self.allow_forgery_protection = configured_forgery_protection unless configured_forgery_protection.nil?
