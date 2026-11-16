@@ -39,7 +39,7 @@ RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request 
             estancia: {
               nombre: "Estancia 1",
               contacto: "Juan Perez",
-              telefono: "123456789",
+              telefono: "1123456789",
               email: "juan@example.com"
             }
           }
@@ -100,7 +100,7 @@ RSpec.describe "Estancias API", openapi_spec: "v1/openapi.yaml", type: :request 
             estancia: {
               nombre: "Estancia actualizada",
               contacto: "Pedro Gomez",
-              telefono: "987654321",
+              telefono: "1198765432",
               email: "pedro@example.com"
             }
           }
